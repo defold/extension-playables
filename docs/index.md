@@ -23,7 +23,13 @@ The extension includes the required synchronous SDK import in its HTML5 engine t
 <script src="https://www.youtube.com/game_api/v1"></script>
 ```
 
-## Report that the game is ready
+## Game lifecycle
+
+Call `playables.first_frame_ready()` when the game has begun showing frames. YouTube does not show the game to players until this is reported:
+
+```lua
+playables.first_frame_ready()
+```
 
 Call `playables.game_ready()` after the game has finished loading, the loading screen is no longer visible, and the player can interact with the game:
 
@@ -34,5 +40,41 @@ playables.game_ready()
 This calls `ytgame.game.gameReady()` and does not return a value.
 
 ::: important
-YouTube requires `ytgame.game.firstFrameReady()` to be called before `gameReady()`. The current initial scaffold exposes only `gameReady()`. Do not submit a game for certification until the first-frame integration is also implemented.
+`playables.first_frame_ready()` must be called before `playables.game_ready()`.
 :::
+
+## Load data
+
+`playables.load_data(callback)` loads the game's serialized data string from YouTube. The callback receives the data and `nil` on success, or `nil` and an error message on failure:
+
+```lua
+playables.load_data(function(self, data, error)
+	if error then
+		print("Unable to load data:", error)
+		return
+	end
+
+	print("Loaded data:", data)
+end)
+```
+
+Only one `load_data()` request may be in progress at a time.
+
+## Save data
+
+`playables.save_data(data, callback)` saves a serialized string to YouTube. The callback receives `true` and `nil` on success, or `false` and an error message on failure:
+
+```lua
+local data = json.encode({ level = 3, score = 1200 })
+
+playables.save_data(data, function(self, success, error)
+	if not success then
+		print("Unable to save data:", error)
+		return
+	end
+
+	print("Data saved")
+end)
+```
+
+The SDK requires a valid, well-formed string no larger than 3 MiB. Only one `save_data()` request may be in progress at a time.

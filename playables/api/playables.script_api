@@ -6,6 +6,57 @@
 
 #*****************************************************************************************************
 
+  - name: first_frame_ready
+    type: function
+    desc: Notifies YouTube that the game has begun showing frames. This must be called before game_ready().
+
+#*****************************************************************************************************
+
   - name: game_ready
     type: function
     desc: Notifies YouTube that the loading screen is gone and the game is ready for players to interact with. YouTube requires firstFrameReady() to be called before this function.
+
+#*****************************************************************************************************
+
+  - name: load_data
+    type: function
+    desc: Loads serialized game data from YouTube. Only one load request may be in progress at a time.
+
+    parameters:
+    - name: callback
+      type: function
+
+      parameters:
+        - name: self
+          type: object
+          desc: The calling script instance.
+        - name: data
+          type: [string, nil]
+          desc: The serialized game data on success, otherwise nil.
+        - name: error
+          type: [string, nil]
+          desc: The SDK error message on failure, otherwise nil.
+
+#*****************************************************************************************************
+
+  - name: save_data
+    type: function
+    desc: Saves a serialized string to YouTube. The string must be valid and no larger than 3 MiB. Only one save request may be in progress at a time.
+
+    parameters:
+    - name: data
+      type: string
+      desc: The serialized game data.
+    - name: callback
+      type: function
+
+      parameters:
+        - name: self
+          type: object
+          desc: The calling script instance.
+        - name: success
+          type: boolean
+          desc: True when the save completed successfully.
+        - name: error
+          type: [string, nil]
+          desc: The SDK error message on failure, otherwise nil.

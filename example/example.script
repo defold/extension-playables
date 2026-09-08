@@ -1,14 +1,40 @@
+local function on_data_loaded(self, data, error)
+	if error then
+		print("Unable to load data:", error)
+	else
+		print("Loaded data:", data)
+	end
+end
+
+local function on_data_saved(self, success, error)
+	if success then
+		print("Data saved")
+	else
+		print("Unable to save data:", error)
+	end
+end
+
 function init(self)
-	-- A complete YouTube Playables integration must call firstFrameReady()
-	-- before reporting that the game is interactable. This initial extension
-	-- scaffold exposes gameReady() only.
 	if html5 then
 		print("YouTube Playables extension loaded")
 	end
 end
 
-function on_message(self, message_id)
-	if message_id == hash("game_ready") and html5 then
+function on_message(self, message_id, message)
+	if not html5 then
+		return
+	end
+
+	-- These messages let a game report each lifecycle event at the correct
+	-- point instead of assuming that collection initialization means a frame
+	-- has already been shown or that the game is already interactable.
+	if message_id == hash("first_frame_ready") then
+		playables.first_frame_ready()
+	elseif message_id == hash("game_ready") then
 		playables.game_ready()
+	elseif message_id == hash("load_data") then
+		playables.load_data(on_data_loaded)
+	elseif message_id == hash("save_data") then
+		playables.save_data(message.data, on_data_saved)
 	end
 end
