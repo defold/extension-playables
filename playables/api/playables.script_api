@@ -143,3 +143,65 @@
         - name: error
           type: [string, nil]
           desc: The SDK error message on failure, otherwise nil.
+
+#*****************************************************************************************************
+
+  - name: send_score
+    type: function
+    desc: Sends an integer score to YouTube. Use one consistent score dimension across the game. Only one request may be in progress at a time.
+
+    parameters:
+    - name: score
+      type: number
+      desc: An integer no greater than JavaScript's maximum safe integer.
+    - name: callback
+      type: function
+
+      parameters:
+        - name: self
+          type: object
+          desc: The calling script instance.
+        - name: success
+          type: boolean
+          desc: True when the request succeeded.
+        - name: error
+          type: [string, nil]
+          desc: The SDK error message on failure, otherwise nil.
+
+#*****************************************************************************************************
+
+  - name: open_yt_content
+    type: function
+    desc: Requests that YouTube open a video or another Playable. The content type is optional and defaults to CONTENT_TYPE_VIDEO. Only one request may be in progress at a time.
+
+    parameters:
+    - name: content_id
+      type: string
+      desc: The YouTube video or Playable ID.
+    - name: content_type
+      type: number
+      optional: true
+      desc: CONTENT_TYPE_VIDEO or CONTENT_TYPE_PLAYABLE.
+    - name: callback
+      type: function
+
+      parameters:
+        - name: self
+          type: object
+          desc: The calling script instance.
+        - name: success
+          type: boolean
+          desc: True when the request succeeded. This does not guarantee that the content opened.
+        - name: error
+          type: [string, nil]
+          desc: The SDK error message on failure, otherwise nil.
+
+#*****************************************************************************************************
+
+  - name: CONTENT_TYPE_VIDEO
+    type: number
+    desc: Opens a YouTube video.
+
+  - name: CONTENT_TYPE_PLAYABLE
+    type: number
+    desc: Opens another YouTube Playable.

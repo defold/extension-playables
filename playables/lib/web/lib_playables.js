@@ -14,6 +14,10 @@ var LibPlayables = {
         _pauseUnsubscribe: null,
         _resumeCallback: null,
         _resumeUnsubscribe: null,
+        _sendScoreCallback: null,
+        _sendScoreErrorCallback: null,
+        _openYTContentCallback: null,
+        _openYTContentErrorCallback: null,
 
         _errorMessage: function(error) {
             if (error && typeof error.message === "string") {
@@ -151,6 +155,42 @@ var LibPlayables = {
             if (callback && !{{{ makeDynCall("i", "callback") }}}()) {
                 Playables._clearResume();
             }
+        },
+
+        _sendScoreSucceeded: function() {
+            var callback = Playables._sendScoreCallback;
+            Playables._sendScoreCallback = null;
+            Playables._sendScoreErrorCallback = null;
+            if (callback) {
+                {{{ makeDynCall("v", "callback") }}}();
+            }
+        },
+
+        _sendScoreFailed: function(error) {
+            var callback = Playables._sendScoreErrorCallback;
+            Playables._sendScoreCallback = null;
+            Playables._sendScoreErrorCallback = null;
+            if (callback) {
+                Playables._invokeErrorCallback(callback, error);
+            }
+        },
+
+        _openYTContentSucceeded: function() {
+            var callback = Playables._openYTContentCallback;
+            Playables._openYTContentCallback = null;
+            Playables._openYTContentErrorCallback = null;
+            if (callback) {
+                {{{ makeDynCall("v", "callback") }}}();
+            }
+        },
+
+        _openYTContentFailed: function(error) {
+            var callback = Playables._openYTContentErrorCallback;
+            Playables._openYTContentCallback = null;
+            Playables._openYTContentErrorCallback = null;
+            if (callback) {
+                Playables._invokeErrorCallback(callback, error);
+            }
         }
     },
 
@@ -221,12 +261,42 @@ var LibPlayables = {
         }
     },
 
-    PlayablesJs_ClearSystemCallbacks: function() {
+    PlayablesJs_ClearCallbacks: function() {
+        Playables._loadDataCallback = null;
+        Playables._loadDataErrorCallback = null;
+        Playables._saveDataCallback = null;
+        Playables._saveDataErrorCallback = null;
         Playables._getLanguageCallback = null;
         Playables._getLanguageErrorCallback = null;
+        Playables._sendScoreCallback = null;
+        Playables._sendScoreErrorCallback = null;
+        Playables._openYTContentCallback = null;
+        Playables._openYTContentErrorCallback = null;
         Playables._clearAudioEnabledChange();
         Playables._clearPause();
         Playables._clearResume();
+    },
+
+    PlayablesJs_SendScore: function(score, callback, errorCallback) {
+        Playables._sendScoreCallback = callback;
+        Playables._sendScoreErrorCallback = errorCallback;
+        try {
+            Promise.resolve(ytgame.engagement.sendScore({ value: score })).then(Playables._sendScoreSucceeded, Playables._sendScoreFailed);
+        } catch (error) {
+            Promise.resolve(error).then(Playables._sendScoreFailed);
+        }
+    },
+
+    PlayablesJs_OpenYTContent: function(contentId, contentIdLength, contentType, callback, errorCallback) {
+        Playables._openYTContentCallback = callback;
+        Playables._openYTContentErrorCallback = errorCallback;
+        try {
+            var id = UTF8ToString(contentId, contentIdLength);
+            var content = { id: id, contentType: contentType };
+            Promise.resolve(ytgame.engagement.openYTContent(content)).then(Playables._openYTContentSucceeded, Playables._openYTContentFailed);
+        } catch (error) {
+            Promise.resolve(error).then(Playables._openYTContentFailed);
+        }
     }
 };
 

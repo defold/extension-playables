@@ -14,7 +14,15 @@ enum PlayablesCallbackSlot
     CALLBACK_SLOT_AUDIO_ENABLED_CHANGE,
     CALLBACK_SLOT_PAUSE,
     CALLBACK_SLOT_RESUME,
+    CALLBACK_SLOT_SEND_SCORE,
+    CALLBACK_SLOT_OPEN_YT_CONTENT,
     CALLBACK_SLOT_COUNT
+};
+
+enum PlayablesContentType
+{
+    CONTENT_TYPE_VIDEO = 0,
+    CONTENT_TYPE_PLAYABLE = 1
 };
 
 typedef void (*LoadDataCallback)(const char* data, int data_length);
@@ -23,6 +31,7 @@ typedef void (*AsyncErrorCallback)(const char* error, int error_length);
 typedef void (*GetLanguageCallback)(const char* language, int language_length);
 typedef int (*AudioEnabledChangeCallback)(int is_audio_enabled);
 typedef int (*SystemEventCallback)();
+typedef void (*EngagementSuccessCallback)();
 
 extern "C" {
     void PlayablesJs_FirstFrameReady();
@@ -34,7 +43,9 @@ extern "C" {
     void PlayablesJs_OnPause(SystemEventCallback callback);
     void PlayablesJs_OnResume(SystemEventCallback callback);
     void PlayablesJs_GetLanguage(GetLanguageCallback callback, AsyncErrorCallback error_callback);
-    void PlayablesJs_ClearSystemCallbacks();
+    void PlayablesJs_ClearCallbacks();
+    void PlayablesJs_SendScore(double score, EngagementSuccessCallback callback, AsyncErrorCallback error_callback);
+    void PlayablesJs_OpenYTContent(const char* content_id, int content_id_length, int content_type, EngagementSuccessCallback callback, AsyncErrorCallback error_callback);
 }
 
 static dmScript::LuaCallbackInfo* playables_Callbacks[CALLBACK_SLOT_COUNT] = {0x0};
@@ -56,6 +67,10 @@ static const char* Playables_GetCallbackName(PlayablesCallbackSlot slot)
             return "on_pause";
         case CALLBACK_SLOT_RESUME:
             return "on_resume";
+        case CALLBACK_SLOT_SEND_SCORE:
+            return "send_score";
+        case CALLBACK_SLOT_OPEN_YT_CONTENT:
+            return "open_yt_content";
         case CALLBACK_SLOT_COUNT:
         default:
             return "unknown";
@@ -290,6 +305,94 @@ static void Playables_GetLanguageErrorCallback(const char* error, int error_leng
     dmScript::DestroyCallback(callback);
 }
 
+static void Playables_SendScoreCallback()
+{
+    dmScript::LuaCallbackInfo* callback = Playables_TakeCallback(CALLBACK_SLOT_SEND_SCORE);
+    if (callback == 0x0)
+    {
+        return;
+    }
+
+    lua_State* L = dmScript::GetCallbackLuaContext(callback);
+    DM_LUA_STACK_CHECK(L, 0);
+
+    if (dmScript::SetupCallback(callback))
+    {
+        lua_pushboolean(L, true);
+        lua_pushnil(L);
+        dmScript::PCall(L, 3, 0);
+        dmScript::TeardownCallback(callback);
+    }
+
+    dmScript::DestroyCallback(callback);
+}
+
+static void Playables_SendScoreErrorCallback(const char* error, int error_length)
+{
+    dmScript::LuaCallbackInfo* callback = Playables_TakeCallback(CALLBACK_SLOT_SEND_SCORE);
+    if (callback == 0x0)
+    {
+        return;
+    }
+
+    lua_State* L = dmScript::GetCallbackLuaContext(callback);
+    DM_LUA_STACK_CHECK(L, 0);
+
+    if (dmScript::SetupCallback(callback))
+    {
+        lua_pushboolean(L, false);
+        lua_pushlstring(L, error, error_length);
+        dmScript::PCall(L, 3, 0);
+        dmScript::TeardownCallback(callback);
+    }
+
+    dmScript::DestroyCallback(callback);
+}
+
+static void Playables_OpenYTContentCallback()
+{
+    dmScript::LuaCallbackInfo* callback = Playables_TakeCallback(CALLBACK_SLOT_OPEN_YT_CONTENT);
+    if (callback == 0x0)
+    {
+        return;
+    }
+
+    lua_State* L = dmScript::GetCallbackLuaContext(callback);
+    DM_LUA_STACK_CHECK(L, 0);
+
+    if (dmScript::SetupCallback(callback))
+    {
+        lua_pushboolean(L, true);
+        lua_pushnil(L);
+        dmScript::PCall(L, 3, 0);
+        dmScript::TeardownCallback(callback);
+    }
+
+    dmScript::DestroyCallback(callback);
+}
+
+static void Playables_OpenYTContentErrorCallback(const char* error, int error_length)
+{
+    dmScript::LuaCallbackInfo* callback = Playables_TakeCallback(CALLBACK_SLOT_OPEN_YT_CONTENT);
+    if (callback == 0x0)
+    {
+        return;
+    }
+
+    lua_State* L = dmScript::GetCallbackLuaContext(callback);
+    DM_LUA_STACK_CHECK(L, 0);
+
+    if (dmScript::SetupCallback(callback))
+    {
+        lua_pushboolean(L, false);
+        lua_pushlstring(L, error, error_length);
+        dmScript::PCall(L, 3, 0);
+        dmScript::TeardownCallback(callback);
+    }
+
+    dmScript::DestroyCallback(callback);
+}
+
 static int Playables_AudioEnabledChangeCallback(int is_audio_enabled)
 {
     uint32_t version = 0;
@@ -425,6 +528,43 @@ static int Playables_GetLanguage(lua_State* L)
     return 0;
 }
 
+static int Playables_SendScore(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    lua_Number score = luaL_checknumber(L, 1);
+    Playables_SetCallback(L, 2, CALLBACK_SLOT_SEND_SCORE);
+    PlayablesJs_SendScore(score, (EngagementSuccessCallback)Playables_SendScoreCallback, (AsyncErrorCallback)Playables_SendScoreErrorCallback);
+    return 0;
+}
+
+static int Playables_OpenYTContent(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    size_t content_id_length = 0;
+    const char* content_id = luaL_checklstring(L, 1, &content_id_length);
+
+    int content_type = CONTENT_TYPE_VIDEO;
+    int callback_index = 2;
+    if (lua_isnil(L, 2))
+    {
+        callback_index = 3;
+    }
+    else if (!lua_isfunction(L, 2))
+    {
+        content_type = luaL_checkint(L, 2);
+        callback_index = 3;
+    }
+
+    if (content_type != CONTENT_TYPE_VIDEO && content_type != CONTENT_TYPE_PLAYABLE)
+    {
+        return luaL_error(L, "playables.open_yt_content() content type must be CONTENT_TYPE_VIDEO or CONTENT_TYPE_PLAYABLE");
+    }
+
+    Playables_SetCallback(L, callback_index, CALLBACK_SLOT_OPEN_YT_CONTENT);
+    PlayablesJs_OpenYTContent(content_id, (int)content_id_length, content_type, (EngagementSuccessCallback)Playables_OpenYTContentCallback, (AsyncErrorCallback)Playables_OpenYTContentErrorCallback);
+    return 0;
+}
+
 static const luaL_reg Module_methods[] =
 {
     {"first_frame_ready", Playables_FirstFrameReady},
@@ -436,6 +576,8 @@ static const luaL_reg Module_methods[] =
     {"on_pause", Playables_OnPause},
     {"on_resume", Playables_OnResume},
     {"get_language", Playables_GetLanguage},
+    {"send_score", Playables_SendScore},
+    {"open_yt_content", Playables_OpenYTContent},
     {0, 0}
 };
 
@@ -444,6 +586,12 @@ static void LuaInit(lua_State* L)
     int top = lua_gettop(L);
 
     luaL_register(L, MODULE_NAME, Module_methods);
+
+    lua_pushnumber(L, CONTENT_TYPE_VIDEO);
+    lua_setfield(L, -2, "CONTENT_TYPE_VIDEO");
+    lua_pushnumber(L, CONTENT_TYPE_PLAYABLE);
+    lua_setfield(L, -2, "CONTENT_TYPE_PLAYABLE");
+
     lua_pop(L, 1);
 
     assert(top == lua_gettop(L));
@@ -457,7 +605,7 @@ static dmExtension::Result InitializePlayables(dmExtension::Params* params)
 
 static dmExtension::Result FinalizePlayables(dmExtension::Params* params)
 {
-    PlayablesJs_ClearSystemCallbacks();
+    PlayablesJs_ClearCallbacks();
     for (int slot = 0; slot < CALLBACK_SLOT_COUNT; ++slot)
     {
         Playables_DestroyCallback((PlayablesCallbackSlot)slot);

@@ -17,6 +17,9 @@ playables.on_audio_enabled_change(function(self, enabled) end)
 playables.on_pause(function(self) end)
 playables.on_resume(function(self) end)
 playables.get_language(function(self, language, error) end)
+
+playables.send_score(score, function(self, success, error) end)
+playables.open_yt_content(video_id, playables.CONTENT_TYPE_VIDEO, function(self, success, error) end)
 ```
 
 Add the extension to a Defold project using a release archive URL:

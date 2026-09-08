@@ -34,6 +34,22 @@ local function on_language(self, language, error)
 	end
 end
 
+local function on_score_sent(self, success, error)
+	if success then
+		print("Score sent")
+	else
+		print("Unable to send score:", error)
+	end
+end
+
+local function on_content_opened(self, success, error)
+	if success then
+		print("Open-content request succeeded")
+	else
+		print("Unable to open content:", error)
+	end
+end
+
 function init(self)
 	if html5 then
 		print("YouTube Playables extension loaded")
@@ -69,5 +85,11 @@ function on_message(self, message_id, message)
 		playables.load_data(on_data_loaded)
 	elseif message_id == hash("save_data") then
 		playables.save_data(message.data, on_data_saved)
+	elseif message_id == hash("send_score") then
+		playables.send_score(message.score, on_score_sent)
+	elseif message_id == hash("open_video") then
+		playables.open_yt_content(message.id, playables.CONTENT_TYPE_VIDEO, on_content_opened)
+	elseif message_id == hash("open_playable") then
+		playables.open_yt_content(message.id, playables.CONTENT_TYPE_PLAYABLE, on_content_opened)
 	end
 end

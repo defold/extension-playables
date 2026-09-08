@@ -3,6 +3,15 @@
 ---Functions for interacting with the YouTube Playables SDK.
 playables = {}
 
+---@type number
+playables.CONTENT_TYPE_VIDEO = nil
+---@type number
+playables.CONTENT_TYPE_PLAYABLE = nil
+
+---@alias PlayablesContentType
+---| `playables.CONTENT_TYPE_VIDEO`
+---| `playables.CONTENT_TYPE_PLAYABLE`
+
 ---Notifies YouTube that the game has begun showing frames.
 ---This must be called before `playables.game_ready()`.
 function playables.first_frame_ready() end
@@ -45,5 +54,19 @@ function playables.on_resume(callback) end
 ---Only one language request may be in progress at a time.
 ---@param callback fun(self: userdata, language: string|nil, error: string|nil)
 function playables.get_language(callback) end
+
+---Sends an integer score to YouTube.
+---Only one score request may be in progress at a time.
+---@param score number
+---@param callback fun(self: userdata, success: boolean, error: string|nil)
+function playables.send_score(score, callback) end
+
+---Requests that YouTube open a video or another Playable.
+---The content type defaults to `playables.CONTENT_TYPE_VIDEO`. Only one request may be in progress at a time.
+---@param content_id string
+---@param content_type PlayablesContentType
+---@param callback fun(self: userdata, success: boolean, error: string|nil)
+---@overload fun(content_id: string, callback: fun(self: userdata, success: boolean, error: string|nil))
+function playables.open_yt_content(content_id, content_type, callback) end
 
 return playables

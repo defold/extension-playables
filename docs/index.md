@@ -140,3 +140,46 @@ end)
 ```
 
 Only one `get_language()` request may be in progress at a time. YouTube recommends using this value instead of another locale source or a language stored in cloud save data.
+
+## Engagement
+
+### Send a score
+
+`playables.send_score(score, callback)` sends an integer score to YouTube. Use one consistent score dimension across the game; YouTube sorts scores and displays the highest value:
+
+```lua
+playables.send_score(1200, function(self, success, error)
+	if not success then
+		print("Unable to send score:", error)
+	end
+end)
+```
+
+Scores must be integers no greater than JavaScript's maximum safe integer (`9007199254740991`). Only one score request may be in progress at a time.
+
+### Open YouTube content
+
+`playables.open_yt_content(id, [content_type], callback)` requests that YouTube open a video or another Playable:
+
+```lua
+playables.open_yt_content("VIDEO_ID", playables.CONTENT_TYPE_VIDEO, function(self, success, error)
+	if not success then
+		print("Unable to open video:", error)
+	end
+end)
+
+playables.open_yt_content("PLAYABLE_ID", playables.CONTENT_TYPE_PLAYABLE, function(self, success, error)
+	if not success then
+		print("Unable to open Playable:", error)
+	end
+end)
+```
+
+The content type defaults to `playables.CONTENT_TYPE_VIDEO` when omitted:
+
+```lua
+playables.open_yt_content("VIDEO_ID", function(self, success, error)
+end)
+```
+
+A successful callback means the request succeeded, but does not guarantee that the content opened. Only one open-content request may be in progress at a time.
