@@ -173,142 +173,168 @@ static int Playables_InvokeAndDestroyCallback(lua_State* L, int nargs, int nresu
 
 /**** Callback functions ********/
 
-static void Playables_LoadDataCallback(const char* data, int data_length)
+static int Playables_LoadDataCallback(const char* data, int data_length)
 {
     lua_State* L = Playables_SetupCallback(CALLBACK_SLOT_LOAD_DATA);
-    if (L)
+    if (!L)
     {
-        lua_pushlstring(L, data, data_length);
-        lua_pushnil(L);
-        Playables_InvokeAndDestroyCallback(L, 3, 0, CALLBACK_SLOT_LOAD_DATA);
+        return 0;
     }
+    lua_pushlstring(L, data, data_length);
+    lua_pushnil(L);
+    Playables_InvokeAndDestroyCallback(L, 3, 0, CALLBACK_SLOT_LOAD_DATA);
+    return 1;
 }
 
-static void Playables_LoadDataErrorCallback(const char* error, int error_length)
+static int Playables_LoadDataErrorCallback(const char* error, int error_length)
 {
     lua_State* L = Playables_SetupCallback(CALLBACK_SLOT_LOAD_DATA);
-    if (L)
+    if (!L)
     {
-        lua_pushnil(L);
-        lua_pushlstring(L, error, error_length);
-        Playables_InvokeAndDestroyCallback(L, 3, 0, CALLBACK_SLOT_LOAD_DATA);
+        return 0;
     }
+    lua_pushnil(L);
+    lua_pushlstring(L, error, error_length);
+    Playables_InvokeAndDestroyCallback(L, 3, 0, CALLBACK_SLOT_LOAD_DATA);
+    return 1;
 }
 
-static void Playables_SaveDataCallback()
+static int Playables_SaveDataCallback()
 {
     lua_State* L = Playables_SetupCallback(CALLBACK_SLOT_SAVE_DATA);
-    if (L)
+    if (!L)
     {
-        lua_pushboolean(L, true);
-        lua_pushnil(L);
-        Playables_InvokeAndDestroyCallback(L, 3, 0, CALLBACK_SLOT_SAVE_DATA);
+        return 0;
     }
+    lua_pushboolean(L, true);
+    lua_pushnil(L);
+    Playables_InvokeAndDestroyCallback(L, 3, 0, CALLBACK_SLOT_SAVE_DATA);
+    return 1;
 }
 
-static void Playables_SaveDataErrorCallback(const char* error, int error_length)
+static int Playables_SaveDataErrorCallback(const char* error, int error_length)
 {
     lua_State* L = Playables_SetupCallback(CALLBACK_SLOT_SAVE_DATA);
-    if (L)
+    if (!L)
     {
-        lua_pushboolean(L, false);
-        lua_pushlstring(L, error, error_length);
-        Playables_InvokeAndDestroyCallback(L, 3, 0, CALLBACK_SLOT_SAVE_DATA);
+        return 0;
     }
+    lua_pushboolean(L, false);
+    lua_pushlstring(L, error, error_length);
+    Playables_InvokeAndDestroyCallback(L, 3, 0, CALLBACK_SLOT_SAVE_DATA);
+    return 1;
 }
 
-static void Playables_GetLanguageCallback(const char* language, int language_length)
+static int Playables_GetLanguageCallback(const char* language, int language_length)
 {
     lua_State* L = Playables_SetupCallback(CALLBACK_SLOT_GET_LANGUAGE);
-    if (L)
+    if (!L)
     {
-        lua_pushlstring(L, language, language_length);
-        lua_pushnil(L);
-        Playables_InvokeAndDestroyCallback(L, 3, 0, CALLBACK_SLOT_GET_LANGUAGE);
+        return 0;
     }
+    lua_pushlstring(L, language, language_length);
+    lua_pushnil(L);
+    Playables_InvokeAndDestroyCallback(L, 3, 0, CALLBACK_SLOT_GET_LANGUAGE);
+    return 1;
 }
 
-static void Playables_GetLanguageErrorCallback(const char* error, int error_length)
+static int Playables_GetLanguageErrorCallback(const char* error, int error_length)
 {
     lua_State* L = Playables_SetupCallback(CALLBACK_SLOT_GET_LANGUAGE);
-    if (L)
+    if (!L)
     {
-        lua_pushnil(L);
-        lua_pushlstring(L, error, error_length);
-        Playables_InvokeAndDestroyCallback(L, 3, 0, CALLBACK_SLOT_GET_LANGUAGE);
+        return 0;
     }
+    lua_pushnil(L);
+    lua_pushlstring(L, error, error_length);
+    Playables_InvokeAndDestroyCallback(L, 3, 0, CALLBACK_SLOT_GET_LANGUAGE);
+    return 1;
 }
 
-static void Playables_SendScoreCallback()
+static int Playables_SendScoreCallback()
 {
     lua_State* L = Playables_SetupCallback(CALLBACK_SLOT_SEND_SCORE);
-    if (L)
+    if (!L)
     {
-        lua_pushboolean(L, true);
-        lua_pushnil(L);
-        Playables_InvokeAndDestroyCallback(L, 3, 0, CALLBACK_SLOT_SEND_SCORE);
+        return 0;
     }
+    lua_pushboolean(L, true);
+    lua_pushnil(L);
+    Playables_InvokeAndDestroyCallback(L, 3, 0, CALLBACK_SLOT_SEND_SCORE);
+    return 1;
 }
 
-static void Playables_SendScoreErrorCallback(const char* error, int error_length)
+static int Playables_SendScoreErrorCallback(const char* error, int error_length)
 {
     lua_State* L = Playables_SetupCallback(CALLBACK_SLOT_SEND_SCORE);
-    if (L)
+    if (!)
     {
-        lua_pushboolean(L, false);
-        lua_pushlstring(L, error, error_length);
-        Playables_InvokeAndDestroyCallback(L, 3, 0, CALLBACK_SLOT_SEND_SCORE);
+        return 0;
     }
+    lua_pushboolean(L, false);
+    lua_pushlstring(L, error, error_length);
+    Playables_InvokeAndDestroyCallback(L, 3, 0, CALLBACK_SLOT_SEND_SCORE);
+    return 1;
 }
 
-static void Playables_OpenYTContentCallback()
+static int Playables_OpenYTContentCallback()
 {
     lua_State* L = Playables_SetupCallback(CALLBACK_SLOT_OPEN_YT_CONTENT);
-    if (L)
+    if (!L)
     {
-        lua_pushboolean(L, true);
-        lua_pushnil(L);
-        Playables_InvokeAndDestroyCallback(L, 3, 0, CALLBACK_SLOT_OPEN_YT_CONTENT);
+        return 0;
     }
+    lua_pushboolean(L, true);
+    lua_pushnil(L);
+    Playables_InvokeAndDestroyCallback(L, 3, 0, CALLBACK_SLOT_OPEN_YT_CONTENT);
+    return 1;
 }
 
-static void Playables_OpenYTContentErrorCallback(const char* error, int error_length)
+static int Playables_OpenYTContentErrorCallback(const char* error, int error_length)
 {
     lua_State* L = Playables_SetupCallback(CALLBACK_SLOT_OPEN_YT_CONTENT);
-    if (L)
+    if (!L)
     {
-        lua_pushboolean(L, false);
-        lua_pushlstring(L, error, error_length);
-        Playables_InvokeAndDestroyCallback(L, 3, 0, CALLBACK_SLOT_OPEN_YT_CONTENT);
+        return 0;
     }
+    lua_pushboolean(L, false);
+    lua_pushlstring(L, error, error_length);
+    Playables_InvokeAndDestroyCallback(L, 3, 0, CALLBACK_SLOT_OPEN_YT_CONTENT);
+    return 1;
 }
 
-static void Playables_AudioEnabledChangeCallback(int is_audio_enabled)
+static int Playables_AudioEnabledChangeCallback(int is_audio_enabled)
 {
     lua_State* L = Playables_SetupCallback(CALLBACK_SLOT_AUDIO_ENABLED_CHANGE);
-    if (L)
+    if (!L)
     {
-        lua_pushboolean(L, is_audio_enabled);
-        Playables_InvokeCallback(L, 2, 0, CALLBACK_SLOT_AUDIO_ENABLED_CHANGE);
+        return 0;
     }
+    lua_pushboolean(L, is_audio_enabled);
+    Playables_InvokeCallback(L, 2, 0, CALLBACK_SLOT_AUDIO_ENABLED_CHANGE);
+    return 1;
 }
 
-static void Playables_PauseCallback()
+static int Playables_PauseCallback()
 {
     lua_State* L = Playables_SetupCallback(CALLBACK_SLOT_PAUSE);
-    if (L)
+    if (!L)
     {
-        Playables_InvokeCallback(L, 1, 0, CALLBACK_SLOT_PAUSE);
+        return 0;
     }
+    Playables_InvokeCallback(L, 1, 0, CALLBACK_SLOT_PAUSE);
+    return 1;
 }
 
-static void Playables_ResumeCallback()
+static int Playables_ResumeCallback()
 {
     lua_State* L = Playables_SetupCallback(CALLBACK_SLOT_RESUME);
-    if (L)
+    if (!L)
     {
-        Playables_InvokeCallback(L, 1, 0, CALLBACK_SLOT_RESUME);
+        return 0;
     }
+    Playables_InvokeCallback(L, 1, 0, CALLBACK_SLOT_RESUME);
+    return 1;
 }
 
 /**** Lua to C++ binding functions ********/
