@@ -1,0 +1,11 @@
+- name: playables
+  type: table
+  desc: Functions for interacting with the YouTube Playables SDK.
+
+  members:
+
+#*****************************************************************************************************
+
+  - name: game_ready
+    type: function
+    desc: Notifies YouTube that the loading screen is gone and the game is ready for players to interact with. YouTube requires firstFrameReady() to be called before this function.

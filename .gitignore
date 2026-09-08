@@ -1,0 +1,17 @@
+/.internal
+/build
+.externalToolBuilders
+.DS_Store
+Thumbs.db
+.lock-wscript
+*.pyc
+.project
+.cproject
+builtins
+report.html
+report.json
+report_time.html
+report_time.json
+.editor_settings
+manifest.private.der
+manifest.public.der

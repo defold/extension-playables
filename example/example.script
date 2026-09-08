@@ -1,0 +1,14 @@
+function init(self)
+	-- A complete YouTube Playables integration must call firstFrameReady()
+	-- before reporting that the game is interactable. This initial extension
+	-- scaffold exposes gameReady() only.
+	if html5 then
+		print("YouTube Playables extension loaded")
+	end
+end
+
+function on_message(self, message_id)
+	if message_id == hash("game_ready") and html5 then
+		playables.game_ready()
+	end
+end
