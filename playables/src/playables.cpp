@@ -269,7 +269,7 @@ static int Playables_SendScoreCallback()
 static int Playables_SendScoreErrorCallback(const char* error, int error_length)
 {
     lua_State* L = Playables_SetupCallback(CALLBACK_SLOT_SEND_SCORE);
-    if (!)
+    if (!L)
     {
         return 0;
     }
