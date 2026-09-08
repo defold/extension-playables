@@ -81,6 +81,7 @@ static void Playables_TeardownCallback(PlayablesCallbackSlot slot)
 {
     assert(playables_Callbacks[slot]);
     dmScript::TeardownCallback(playables_Callbacks[slot]);
+    playables_CallbacksInProgress[slot] = false;
 }
 
 static void Playables_DestroyCallback(PlayablesCallbackSlot slot)
@@ -89,7 +90,6 @@ static void Playables_DestroyCallback(PlayablesCallbackSlot slot)
     {
         dmScript::DestroyCallback(playables_Callbacks[slot]);
         playables_Callbacks[slot] = 0x0;
-        playables_CallbacksInProgress[slot] = false;
     }
 }
 
