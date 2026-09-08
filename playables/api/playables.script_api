@@ -20,7 +20,7 @@
 
   - name: load_data
     type: function
-    desc: Loads serialized game data from YouTube. Only one load request may be in progress at a time.
+    desc: Loads serialized game data from YouTube. Only one load request may be in progress at a time. The request remains in progress until its callback returns, so the callback cannot start another load_data() request.
 
     parameters:
     - name: callback
@@ -41,7 +41,7 @@
 
   - name: save_data
     type: function
-    desc: Saves a serialized string to YouTube. The string must be valid and no larger than 3 MiB. Only one save request may be in progress at a time.
+    desc: Saves a serialized string to YouTube. The string must be valid and no larger than 3 MiB. Only one save request may be in progress at a time. The request remains in progress until its callback returns, so the callback cannot start another save_data() request.
 
     parameters:
     - name: data
@@ -76,7 +76,7 @@
 
   - name: on_audio_enabled_change
     type: function
-    desc: Registers a callback for YouTube audio-setting changes. A new callback replaces the previous one. Pass nil to unregister it.
+    desc: Registers a callback for YouTube audio-setting changes. A new callback replaces the previous one. Pass nil to unregister it. This function cannot be called from its own callback.
 
     parameters:
     - name: callback
@@ -95,7 +95,7 @@
 
   - name: on_pause
     type: function
-    desc: Registers a callback for YouTube pause events. A new callback replaces the previous one. Pass nil to unregister it. A paused game is not guaranteed to resume.
+    desc: Registers a callback for YouTube pause events. A new callback replaces the previous one. Pass nil to unregister it. This function cannot be called from its own callback. A paused game is not guaranteed to resume.
 
     parameters:
     - name: callback
@@ -111,7 +111,7 @@
 
   - name: on_resume
     type: function
-    desc: Registers a callback for YouTube resume events. A new callback replaces the previous one. Pass nil to unregister it.
+    desc: Registers a callback for YouTube resume events. A new callback replaces the previous one. Pass nil to unregister it. This function cannot be called from its own callback.
 
     parameters:
     - name: callback
@@ -127,7 +127,7 @@
 
   - name: get_language
     type: function
-    desc: Gets the language in the player's YouTube settings as a BCP-47 language tag. Only one request may be in progress at a time.
+    desc: Gets the language in the player's YouTube settings as a BCP-47 language tag. Only one request may be in progress at a time. The request remains in progress until its callback returns, so the callback cannot start another get_language() request.
 
     parameters:
     - name: callback
@@ -148,7 +148,7 @@
 
   - name: send_score
     type: function
-    desc: Sends an integer score to YouTube. Use one consistent score dimension across the game. Only one request may be in progress at a time.
+    desc: Sends an integer score to YouTube. Use one consistent score dimension across the game. Only one request may be in progress at a time. The request remains in progress until its callback returns, so the callback cannot start another send_score() request.
 
     parameters:
     - name: score
@@ -172,7 +172,7 @@
 
   - name: open_yt_content
     type: function
-    desc: Requests that YouTube open a video or another Playable. The content type is optional and defaults to CONTENT_TYPE_VIDEO. Only one request may be in progress at a time.
+    desc: Requests that YouTube open a video or another Playable. The content type is optional and defaults to CONTENT_TYPE_VIDEO. Only one request may be in progress at a time. The request remains in progress until its callback returns, so the callback cannot start another open_yt_content() request.
 
     parameters:
     - name: content_id

@@ -120,30 +120,43 @@ static void Playables_DestroyCallback(PlayablesCallbackSlot slot)
     {
         dmScript::DestroyCallback(playables_Callbacks[slot]);
         playables_Callbacks[slot] = 0x0;
+        playables_CallbacksInProgress[slot] = false;
     }
 }
 
-static bool Playables_SetCallback(lua_State* L, int index, PlayablesCallbackSlot slot)
+static bool Playables_CreateCallback(lua_State* L, int index, PlayablesCallbackSlot slot)
 {
-    if (Playables_IsCallbackRepeated(slot))
+    // never allow interaction with a callback in progress
+    if (playables_CallbacksInProgress[slot])
     {
-        if (lua_isnil(L, index))
-        {
-            Playables_DestroyCallback(slot);
-            return true;
-        }
-    }
-    
-    if (playables_Callbacks[slot] != 0x0)
-    {
-        luaL_error(L, "playables.%s() already has a request in progress", Playables_GetCallbackName(slot));
+        luaL_error(L, "playables.%s() callback is in progress", Playables_GetCallbackName(slot));
         return false;
     }
 
-    if (!lua_isfunction(L, index))
+    if (!lua_isfunction(L, index) && !lua_isnil(L, index))
     {
-        luaL_error(L, "playables.%s() requires a callback function", Playables_GetCallbackName(slot));
+        luaL_error(L, "playables.%s() requires a callback function or nil", Playables_GetCallbackName(slot));
         return false;
+    }
+
+    // repeated callbacks can be cleared by passing nil to them
+    // repeated callbacks can be changed by passing a new function to them
+    if (Playables_IsCallbackRepeated(slot))
+    {
+        Playables_DestroyCallback(slot);
+        if (lua_isnil(L, index))
+        {
+            return true;
+        }
+    }
+    // one shot callbacks can not be changed
+    else
+    {
+        if (playables_Callbacks[slot] != 0x0)
+        {
+            luaL_error(L, "playables.%s() callback already created", Playables_GetCallbackName(slot));
+            return false;
+        }
     }
 
     playables_Callbacks[slot] = dmScript::CreateCallback(L, index);
@@ -367,7 +380,7 @@ static int Playables_GameReady(lua_State* L)
 static int Playables_LoadData(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 0);
-    if (Playables_SetCallback(L, 1, CALLBACK_SLOT_LOAD_DATA))
+    if (Playables_CreateCallback(L, 1, CALLBACK_SLOT_LOAD_DATA))
     {
         PlayablesJs_LoadData((LoadDataCallback)Playables_LoadDataCallback, (AsyncErrorCallback)Playables_LoadDataErrorCallback);
     }
@@ -379,7 +392,7 @@ static int Playables_SaveData(lua_State* L)
     DM_LUA_STACK_CHECK(L, 0);
     size_t data_length = 0;
     const char* data = luaL_checklstring(L, 1, &data_length);
-    if (Playables_SetCallback(L, 2, CALLBACK_SLOT_SAVE_DATA))
+    if (Playables_CreateCallback(L, 2, CALLBACK_SLOT_SAVE_DATA))
     {
         PlayablesJs_SaveData(data, (int)data_length, (SaveDataCallback)Playables_SaveDataCallback, (AsyncErrorCallback)Playables_SaveDataErrorCallback);
     }
@@ -396,7 +409,7 @@ static int Playables_IsAudioEnabled(lua_State* L)
 static int Playables_OnAudioEnabledChange(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 0);
-    if (Playables_SetCallback(L, 1, CALLBACK_SLOT_AUDIO_ENABLED_CHANGE))
+    if (Playables_CreateCallback(L, 1, CALLBACK_SLOT_AUDIO_ENABLED_CHANGE))
     {
         PlayablesJs_OnAudioEnabledChange(!Playables_HasCallback(CALLBACK_SLOT_AUDIO_ENABLED_CHANGE) ? 0x0 : (AudioEnabledChangeCallback)Playables_AudioEnabledChangeCallback);
     }
@@ -406,7 +419,7 @@ static int Playables_OnAudioEnabledChange(lua_State* L)
 static int Playables_OnPause(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 0);
-    if (Playables_SetCallback(L, 1, CALLBACK_SLOT_PAUSE))
+    if (Playables_CreateCallback(L, 1, CALLBACK_SLOT_PAUSE))
     {
         PlayablesJs_OnPause(!Playables_HasCallback(CALLBACK_SLOT_PAUSE) ? 0x0 : (SystemEventCallback)Playables_PauseCallback);
     }
@@ -416,7 +429,7 @@ static int Playables_OnPause(lua_State* L)
 static int Playables_OnResume(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 0);
-    if (Playables_SetCallback(L, 1, CALLBACK_SLOT_RESUME))
+    if (Playables_CreateCallback(L, 1, CALLBACK_SLOT_RESUME))
     {
         PlayablesJs_OnResume(!Playables_HasCallback(CALLBACK_SLOT_RESUME) ? 0x0 : (SystemEventCallback)Playables_ResumeCallback);
     }
@@ -426,7 +439,7 @@ static int Playables_OnResume(lua_State* L)
 static int Playables_GetLanguage(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 0);
-    if (Playables_SetCallback(L, 1, CALLBACK_SLOT_GET_LANGUAGE))
+    if (Playables_CreateCallback(L, 1, CALLBACK_SLOT_GET_LANGUAGE))
     {
         PlayablesJs_GetLanguage((GetLanguageCallback)Playables_GetLanguageCallback, (AsyncErrorCallback)Playables_GetLanguageErrorCallback);
     }
@@ -437,7 +450,7 @@ static int Playables_SendScore(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 0);
     lua_Number score = luaL_checknumber(L, 1);
-    if (Playables_SetCallback(L, 2, CALLBACK_SLOT_SEND_SCORE))
+    if (Playables_CreateCallback(L, 2, CALLBACK_SLOT_SEND_SCORE))
     {
         PlayablesJs_SendScore(score, (EngagementSuccessCallback)Playables_SendScoreCallback, (AsyncErrorCallback)Playables_SendScoreErrorCallback);
     }
@@ -467,7 +480,7 @@ static int Playables_OpenYTContent(lua_State* L)
         return luaL_error(L, "playables.open_yt_content() content type must be CONTENT_TYPE_VIDEO or CONTENT_TYPE_PLAYABLE");
     }
 
-    if (Playables_SetCallback(L, callback_index, CALLBACK_SLOT_OPEN_YT_CONTENT))
+    if (Playables_CreateCallback(L, callback_index, CALLBACK_SLOT_OPEN_YT_CONTENT))
     {
         PlayablesJs_OpenYTContent(content_id, (int)content_id_length, content_type, (EngagementSuccessCallback)Playables_OpenYTContentCallback, (AsyncErrorCallback)Playables_OpenYTContentErrorCallback);
     }

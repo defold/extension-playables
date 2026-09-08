@@ -58,7 +58,7 @@ playables.load_data(function(self, data, error)
 end)
 ```
 
-Only one `load_data()` request may be in progress at a time.
+Only one `load_data()` request may be in progress at a time. The request remains in progress until its callback returns, so the callback cannot start another `load_data()` request.
 
 ## Save data
 
@@ -77,7 +77,7 @@ playables.save_data(data, function(self, success, error)
 end)
 ```
 
-The SDK requires a valid, well-formed string no larger than 3 MiB. Only one `save_data()` request may be in progress at a time.
+The SDK requires a valid, well-formed string no larger than 3 MiB. Only one `save_data()` request may be in progress at a time. The request remains in progress until its callback returns, so the callback cannot start another `save_data()` request.
 
 ## System integration
 
@@ -103,6 +103,8 @@ Registering another callback replaces the previous callback. Pass `nil` to unreg
 playables.on_audio_enabled_change(nil)
 ```
 
+Do not call `playables.on_audio_enabled_change()` from inside its callback. Registration, replacement, and unregistration are rejected while the callback is executing.
+
 ### Pause and resume
 
 YouTube can pause the game when it is backgrounded or exited. A paused game is not guaranteed to resume, so save important state during the pause callback:
@@ -124,6 +126,8 @@ playables.on_pause(nil)
 playables.on_resume(nil)
 ```
 
+Do not call `playables.on_pause()` from inside its pause callback or `playables.on_resume()` from inside its resume callback. Registration, replacement, and unregistration are rejected while the corresponding callback is executing.
+
 ### Language
 
 `playables.get_language(callback)` returns the language from the player's YouTube settings as a BCP-47 language tag:
@@ -139,7 +143,7 @@ playables.get_language(function(self, language, error)
 end)
 ```
 
-Only one `get_language()` request may be in progress at a time. YouTube recommends using this value instead of another locale source or a language stored in cloud save data.
+Only one `get_language()` request may be in progress at a time. The request remains in progress until its callback returns, so the callback cannot start another `get_language()` request. YouTube recommends using this value instead of another locale source or a language stored in cloud save data.
 
 ## Engagement
 
@@ -155,7 +159,7 @@ playables.send_score(1200, function(self, success, error)
 end)
 ```
 
-Scores must be integers no greater than JavaScript's maximum safe integer (`9007199254740991`). Only one score request may be in progress at a time.
+Scores must be integers no greater than JavaScript's maximum safe integer (`9007199254740991`). Only one score request may be in progress at a time. The request remains in progress until its callback returns, so the callback cannot start another `send_score()` request.
 
 ### Open YouTube content
 
@@ -182,4 +186,4 @@ playables.open_yt_content("VIDEO_ID", function(self, success, error)
 end)
 ```
 
-A successful callback means the request succeeded, but does not guarantee that the content opened. Only one open-content request may be in progress at a time.
+A successful callback means the request succeeded, but does not guarantee that the content opened. Only one open-content request may be in progress at a time. The request remains in progress until its callback returns, so the callback cannot start another `open_yt_content()` request.

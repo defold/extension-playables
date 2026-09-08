@@ -21,12 +21,14 @@ function playables.first_frame_ready() end
 function playables.game_ready() end
 
 ---Loads serialized game data from YouTube.
----Only one load request may be in progress at a time.
+---Only one load request may be in progress at a time. The request remains in progress until its callback returns,
+---so the callback cannot start another `playables.load_data()` request.
 ---@param callback fun(self: userdata, data: string|nil, error: string|nil)
 function playables.load_data(callback) end
 
 ---Saves serialized game data to YouTube.
 ---The data must be a valid string no larger than 3 MiB. Only one save request may be in progress at a time.
+---The request remains in progress until its callback returns, so the callback cannot start another `playables.save_data()` request.
 ---@param data string
 ---@param callback fun(self: userdata, success: boolean, error: string|nil)
 function playables.save_data(data, callback) end
@@ -37,32 +39,38 @@ function playables.is_audio_enabled() end
 
 ---Registers a callback for YouTube audio-setting changes.
 ---A new callback replaces the previous one. Pass `nil` to unregister it.
+---This function cannot be called from its own callback.
 ---@param callback (fun(self: userdata, is_audio_enabled: boolean))|nil
 function playables.on_audio_enabled_change(callback) end
 
 ---Registers a callback for YouTube pause events.
 ---A new callback replaces the previous one. Pass `nil` to unregister it.
+---This function cannot be called from its own callback.
 ---@param callback (fun(self: userdata))|nil
 function playables.on_pause(callback) end
 
 ---Registers a callback for YouTube resume events.
 ---A new callback replaces the previous one. Pass `nil` to unregister it.
+---This function cannot be called from its own callback.
 ---@param callback (fun(self: userdata))|nil
 function playables.on_resume(callback) end
 
 ---Gets the language in the player's YouTube settings as a BCP-47 tag.
----Only one language request may be in progress at a time.
+---Only one language request may be in progress at a time. The request remains in progress until its callback returns,
+---so the callback cannot start another `playables.get_language()` request.
 ---@param callback fun(self: userdata, language: string|nil, error: string|nil)
 function playables.get_language(callback) end
 
 ---Sends an integer score to YouTube.
----Only one score request may be in progress at a time.
+---Only one score request may be in progress at a time. The request remains in progress until its callback returns,
+---so the callback cannot start another `playables.send_score()` request.
 ---@param score number
 ---@param callback fun(self: userdata, success: boolean, error: string|nil)
 function playables.send_score(score, callback) end
 
 ---Requests that YouTube open a video or another Playable.
 ---The content type defaults to `playables.CONTENT_TYPE_VIDEO`. Only one request may be in progress at a time.
+---The request remains in progress until its callback returns, so the callback cannot start another `playables.open_yt_content()` request.
 ---@param content_id string
 ---@param content_type PlayablesContentType
 ---@param callback fun(self: userdata, success: boolean, error: string|nil)
