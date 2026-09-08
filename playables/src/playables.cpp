@@ -95,18 +95,18 @@ static void Playables_DestroyCallback(PlayablesCallbackSlot slot)
 
 static bool Playables_SetCallback(lua_State* L, int index, PlayablesCallbackSlot slot)
 {
-    if (playables_Callbacks[slot] != 0x0)
-    {
-        luaL_error(L, "playables.%s() already has a request in progress", Playables_GetCallbackName(slot));
-        return false;
-    }
-
     if (lua_isnil(L, index))
     {
         Playables_DestroyCallback(slot);
         return true;
     }
     
+    if (playables_Callbacks[slot] != 0x0)
+    {
+        luaL_error(L, "playables.%s() already has a request in progress", Playables_GetCallbackName(slot));
+        return false;
+    }
+
     if (!lua_isfunction(L, index))
     {
         luaL_error(L, "playables.%s() requires a callback function", Playables_GetCallbackName(slot));
