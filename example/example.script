@@ -14,9 +14,42 @@ local function on_data_saved(self, success, error)
 	end
 end
 
+local function on_audio_enabled_change(self, is_audio_enabled)
+	print("Audio enabled:", is_audio_enabled)
+end
+
+local function on_pause(self)
+	print("YouTube paused the game")
+end
+
+local function on_resume(self)
+	print("YouTube resumed the game")
+end
+
+local function on_language(self, language, error)
+	if error then
+		print("Unable to get language:", error)
+	else
+		print("YouTube language:", language)
+	end
+end
+
 function init(self)
 	if html5 then
 		print("YouTube Playables extension loaded")
+		on_audio_enabled_change(self, playables.is_audio_enabled())
+		playables.on_audio_enabled_change(on_audio_enabled_change)
+		playables.on_pause(on_pause)
+		playables.on_resume(on_resume)
+		playables.get_language(on_language)
+	end
+end
+
+function final(self)
+	if html5 then
+		playables.on_audio_enabled_change(nil)
+		playables.on_pause(nil)
+		playables.on_resume(nil)
 	end
 end
 

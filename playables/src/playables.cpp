@@ -10,21 +10,35 @@ enum PlayablesCallbackSlot
 {
     CALLBACK_SLOT_LOAD_DATA = 0,
     CALLBACK_SLOT_SAVE_DATA,
+    CALLBACK_SLOT_GET_LANGUAGE,
+    CALLBACK_SLOT_AUDIO_ENABLED_CHANGE,
+    CALLBACK_SLOT_PAUSE,
+    CALLBACK_SLOT_RESUME,
     CALLBACK_SLOT_COUNT
 };
 
 typedef void (*LoadDataCallback)(const char* data, int data_length);
 typedef void (*SaveDataCallback)();
 typedef void (*AsyncErrorCallback)(const char* error, int error_length);
+typedef void (*GetLanguageCallback)(const char* language, int language_length);
+typedef int (*AudioEnabledChangeCallback)(int is_audio_enabled);
+typedef int (*SystemEventCallback)();
 
 extern "C" {
     void PlayablesJs_FirstFrameReady();
     void PlayablesJs_GameReady();
     void PlayablesJs_LoadData(LoadDataCallback callback, AsyncErrorCallback error_callback);
     void PlayablesJs_SaveData(const char* data, int data_length, SaveDataCallback callback, AsyncErrorCallback error_callback);
+    int PlayablesJs_IsAudioEnabled();
+    void PlayablesJs_OnAudioEnabledChange(AudioEnabledChangeCallback callback);
+    void PlayablesJs_OnPause(SystemEventCallback callback);
+    void PlayablesJs_OnResume(SystemEventCallback callback);
+    void PlayablesJs_GetLanguage(GetLanguageCallback callback, AsyncErrorCallback error_callback);
+    void PlayablesJs_ClearSystemCallbacks();
 }
 
 static dmScript::LuaCallbackInfo* playables_Callbacks[CALLBACK_SLOT_COUNT] = {0x0};
+static uint32_t playables_CallbackVersions[CALLBACK_SLOT_COUNT] = {0};
 
 static const char* Playables_GetCallbackName(PlayablesCallbackSlot slot)
 {
@@ -34,6 +48,14 @@ static const char* Playables_GetCallbackName(PlayablesCallbackSlot slot)
             return "load_data";
         case CALLBACK_SLOT_SAVE_DATA:
             return "save_data";
+        case CALLBACK_SLOT_GET_LANGUAGE:
+            return "get_language";
+        case CALLBACK_SLOT_AUDIO_ENABLED_CHANGE:
+            return "on_audio_enabled_change";
+        case CALLBACK_SLOT_PAUSE:
+            return "on_pause";
+        case CALLBACK_SLOT_RESUME:
+            return "on_resume";
         case CALLBACK_SLOT_COUNT:
         default:
             return "unknown";
@@ -64,6 +86,60 @@ static void Playables_SetCallback(lua_State* L, int index, PlayablesCallbackSlot
     }
 
     playables_Callbacks[slot] = dmScript::CreateCallback(L, index);
+}
+
+static void Playables_SetEventCallback(lua_State* L, int index, PlayablesCallbackSlot slot)
+{
+    if (lua_isnil(L, index))
+    {
+        ++playables_CallbackVersions[slot];
+        Playables_DestroyCallback(slot);
+        return;
+    }
+
+    if (lua_type(L, index) != LUA_TFUNCTION)
+    {
+        luaL_error(L, "playables.%s() requires a callback function or nil", Playables_GetCallbackName(slot));
+        return;
+    }
+
+    ++playables_CallbackVersions[slot];
+    Playables_DestroyCallback(slot);
+    playables_Callbacks[slot] = dmScript::CreateCallback(L, index);
+}
+
+static dmScript::LuaCallbackInfo* Playables_GetValidCallback(PlayablesCallbackSlot slot)
+{
+    dmScript::LuaCallbackInfo* callback = playables_Callbacks[slot];
+    if (!dmScript::IsCallbackValid(callback))
+    {
+        Playables_DestroyCallback(slot);
+        return 0x0;
+    }
+    return callback;
+}
+
+static dmScript::LuaCallbackInfo* Playables_BeginEventCallback(PlayablesCallbackSlot slot, uint32_t* version)
+{
+    dmScript::LuaCallbackInfo* callback = Playables_GetValidCallback(slot);
+    if (callback != 0x0)
+    {
+        *version = playables_CallbackVersions[slot];
+        playables_Callbacks[slot] = 0x0;
+    }
+    return callback;
+}
+
+static int Playables_EndEventCallback(PlayablesCallbackSlot slot, dmScript::LuaCallbackInfo* callback, uint32_t version)
+{
+    if (playables_CallbackVersions[slot] == version)
+    {
+        playables_Callbacks[slot] = callback;
+        return 1;
+    }
+
+    dmScript::DestroyCallback(callback);
+    return playables_Callbacks[slot] != 0x0;
 }
 
 static dmScript::LuaCallbackInfo* Playables_TakeCallback(PlayablesCallbackSlot slot)
@@ -170,6 +246,114 @@ static void Playables_SaveDataErrorCallback(const char* error, int error_length)
     dmScript::DestroyCallback(callback);
 }
 
+static void Playables_GetLanguageCallback(const char* language, int language_length)
+{
+    dmScript::LuaCallbackInfo* callback = Playables_TakeCallback(CALLBACK_SLOT_GET_LANGUAGE);
+    if (callback == 0x0)
+    {
+        return;
+    }
+
+    lua_State* L = dmScript::GetCallbackLuaContext(callback);
+    DM_LUA_STACK_CHECK(L, 0);
+
+    if (dmScript::SetupCallback(callback))
+    {
+        lua_pushlstring(L, language, language_length);
+        lua_pushnil(L);
+        dmScript::PCall(L, 3, 0);
+        dmScript::TeardownCallback(callback);
+    }
+
+    dmScript::DestroyCallback(callback);
+}
+
+static void Playables_GetLanguageErrorCallback(const char* error, int error_length)
+{
+    dmScript::LuaCallbackInfo* callback = Playables_TakeCallback(CALLBACK_SLOT_GET_LANGUAGE);
+    if (callback == 0x0)
+    {
+        return;
+    }
+
+    lua_State* L = dmScript::GetCallbackLuaContext(callback);
+    DM_LUA_STACK_CHECK(L, 0);
+
+    if (dmScript::SetupCallback(callback))
+    {
+        lua_pushnil(L);
+        lua_pushlstring(L, error, error_length);
+        dmScript::PCall(L, 3, 0);
+        dmScript::TeardownCallback(callback);
+    }
+
+    dmScript::DestroyCallback(callback);
+}
+
+static int Playables_AudioEnabledChangeCallback(int is_audio_enabled)
+{
+    uint32_t version = 0;
+    dmScript::LuaCallbackInfo* callback = Playables_BeginEventCallback(CALLBACK_SLOT_AUDIO_ENABLED_CHANGE, &version);
+    if (callback == 0x0)
+    {
+        return 0;
+    }
+
+    lua_State* L = dmScript::GetCallbackLuaContext(callback);
+    DM_LUA_STACK_CHECK(L, 0);
+
+    if (dmScript::SetupCallback(callback))
+    {
+        lua_pushboolean(L, is_audio_enabled);
+        dmScript::PCall(L, 2, 0);
+        dmScript::TeardownCallback(callback);
+    }
+
+    return Playables_EndEventCallback(CALLBACK_SLOT_AUDIO_ENABLED_CHANGE, callback, version);
+}
+
+static int Playables_PauseCallback()
+{
+    uint32_t version = 0;
+    dmScript::LuaCallbackInfo* callback = Playables_BeginEventCallback(CALLBACK_SLOT_PAUSE, &version);
+    if (callback == 0x0)
+    {
+        return 0;
+    }
+
+    lua_State* L = dmScript::GetCallbackLuaContext(callback);
+    DM_LUA_STACK_CHECK(L, 0);
+
+    if (dmScript::SetupCallback(callback))
+    {
+        dmScript::PCall(L, 1, 0);
+        dmScript::TeardownCallback(callback);
+    }
+
+    return Playables_EndEventCallback(CALLBACK_SLOT_PAUSE, callback, version);
+}
+
+static int Playables_ResumeCallback()
+{
+    uint32_t version = 0;
+    dmScript::LuaCallbackInfo* callback = Playables_BeginEventCallback(CALLBACK_SLOT_RESUME, &version);
+    if (callback == 0x0)
+    {
+        return 0;
+    }
+
+    lua_State* L = dmScript::GetCallbackLuaContext(callback);
+    DM_LUA_STACK_CHECK(L, 0);
+
+    if (dmScript::SetupCallback(callback))
+    {
+        dmScript::PCall(L, 1, 0);
+        dmScript::TeardownCallback(callback);
+    }
+
+    return Playables_EndEventCallback(CALLBACK_SLOT_RESUME, callback, version);
+}
+
 static int Playables_FirstFrameReady(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 0);
@@ -202,12 +386,56 @@ static int Playables_SaveData(lua_State* L)
     return 0;
 }
 
+static int Playables_IsAudioEnabled(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 1);
+    lua_pushboolean(L, PlayablesJs_IsAudioEnabled());
+    return 1;
+}
+
+static int Playables_OnAudioEnabledChange(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    Playables_SetEventCallback(L, 1, CALLBACK_SLOT_AUDIO_ENABLED_CHANGE);
+    PlayablesJs_OnAudioEnabledChange(lua_isnil(L, 1) ? 0x0 : (AudioEnabledChangeCallback)Playables_AudioEnabledChangeCallback);
+    return 0;
+}
+
+static int Playables_OnPause(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    Playables_SetEventCallback(L, 1, CALLBACK_SLOT_PAUSE);
+    PlayablesJs_OnPause(lua_isnil(L, 1) ? 0x0 : (SystemEventCallback)Playables_PauseCallback);
+    return 0;
+}
+
+static int Playables_OnResume(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    Playables_SetEventCallback(L, 1, CALLBACK_SLOT_RESUME);
+    PlayablesJs_OnResume(lua_isnil(L, 1) ? 0x0 : (SystemEventCallback)Playables_ResumeCallback);
+    return 0;
+}
+
+static int Playables_GetLanguage(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    Playables_SetCallback(L, 1, CALLBACK_SLOT_GET_LANGUAGE);
+    PlayablesJs_GetLanguage((GetLanguageCallback)Playables_GetLanguageCallback, (AsyncErrorCallback)Playables_GetLanguageErrorCallback);
+    return 0;
+}
+
 static const luaL_reg Module_methods[] =
 {
     {"first_frame_ready", Playables_FirstFrameReady},
     {"game_ready", Playables_GameReady},
     {"load_data", Playables_LoadData},
     {"save_data", Playables_SaveData},
+    {"is_audio_enabled", Playables_IsAudioEnabled},
+    {"on_audio_enabled_change", Playables_OnAudioEnabledChange},
+    {"on_pause", Playables_OnPause},
+    {"on_resume", Playables_OnResume},
+    {"get_language", Playables_GetLanguage},
     {0, 0}
 };
 
@@ -229,6 +457,7 @@ static dmExtension::Result InitializePlayables(dmExtension::Params* params)
 
 static dmExtension::Result FinalizePlayables(dmExtension::Params* params)
 {
+    PlayablesJs_ClearSystemCallbacks();
     for (int slot = 0; slot < CALLBACK_SLOT_COUNT; ++slot)
     {
         Playables_DestroyCallback((PlayablesCallbackSlot)slot);

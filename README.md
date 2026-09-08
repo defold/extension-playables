@@ -11,6 +11,12 @@ playables.first_frame_ready()
 playables.game_ready()
 playables.load_data(function(self, data, error) end)
 playables.save_data(data, function(self, success, error) end)
+
+local audio_enabled = playables.is_audio_enabled()
+playables.on_audio_enabled_change(function(self, enabled) end)
+playables.on_pause(function(self) end)
+playables.on_resume(function(self) end)
+playables.get_language(function(self, language, error) end)
 ```
 
 Add the extension to a Defold project using a release archive URL:

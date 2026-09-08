@@ -60,3 +60,86 @@
         - name: error
           type: [string, nil]
           desc: The SDK error message on failure, otherwise nil.
+
+#*****************************************************************************************************
+
+  - name: is_audio_enabled
+    type: function
+    desc: Returns whether game audio is enabled in the player's YouTube settings. Use this to initialize the game audio state.
+
+    returns:
+    - name: is_audio_enabled
+      type: boolean
+      desc: True when game audio is enabled.
+
+#*****************************************************************************************************
+
+  - name: on_audio_enabled_change
+    type: function
+    desc: Registers a callback for YouTube audio-setting changes. A new callback replaces the previous one. Pass nil to unregister it.
+
+    parameters:
+    - name: callback
+      type: [function, nil]
+      desc: The event callback, or nil to unregister the current callback.
+
+      parameters:
+        - name: self
+          type: object
+          desc: The calling script instance.
+        - name: is_audio_enabled
+          type: boolean
+          desc: True when game audio should be enabled.
+
+#*****************************************************************************************************
+
+  - name: on_pause
+    type: function
+    desc: Registers a callback for YouTube pause events. A new callback replaces the previous one. Pass nil to unregister it. A paused game is not guaranteed to resume.
+
+    parameters:
+    - name: callback
+      type: [function, nil]
+      desc: The event callback, or nil to unregister the current callback.
+
+      parameters:
+        - name: self
+          type: object
+          desc: The calling script instance.
+
+#*****************************************************************************************************
+
+  - name: on_resume
+    type: function
+    desc: Registers a callback for YouTube resume events. A new callback replaces the previous one. Pass nil to unregister it.
+
+    parameters:
+    - name: callback
+      type: [function, nil]
+      desc: The event callback, or nil to unregister the current callback.
+
+      parameters:
+        - name: self
+          type: object
+          desc: The calling script instance.
+
+#*****************************************************************************************************
+
+  - name: get_language
+    type: function
+    desc: Gets the language in the player's YouTube settings as a BCP-47 language tag. Only one request may be in progress at a time.
+
+    parameters:
+    - name: callback
+      type: function
+
+      parameters:
+        - name: self
+          type: object
+          desc: The calling script instance.
+        - name: language
+          type: [string, nil]
+          desc: The BCP-47 language tag on success, otherwise nil.
+        - name: error
+          type: [string, nil]
+          desc: The SDK error message on failure, otherwise nil.

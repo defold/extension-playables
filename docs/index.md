@@ -78,3 +78,65 @@ end)
 ```
 
 The SDK requires a valid, well-formed string no larger than 3 MiB. Only one `save_data()` request may be in progress at a time.
+
+## System integration
+
+### Audio
+
+Use `playables.is_audio_enabled()` to initialize the game's audio state, then register a handler to keep it synchronized with YouTube:
+
+```lua
+local function apply_audio_setting(enabled)
+	sound.set_group_gain(hash("master"), enabled and 1 or 0)
+end
+
+apply_audio_setting(playables.is_audio_enabled())
+
+playables.on_audio_enabled_change(function(self, enabled)
+	apply_audio_setting(enabled)
+end)
+```
+
+Registering another callback replaces the previous callback. Pass `nil` to unregister it:
+
+```lua
+playables.on_audio_enabled_change(nil)
+```
+
+### Pause and resume
+
+YouTube can pause the game when it is backgrounded or exited. A paused game is not guaranteed to resume, so save important state during the pause callback:
+
+```lua
+playables.on_pause(function(self)
+	-- Pause gameplay and save important state.
+end)
+
+playables.on_resume(function(self)
+	-- Resume gameplay.
+end)
+```
+
+Registering another callback replaces the previous callback. Pass `nil` to the corresponding function to unregister it:
+
+```lua
+playables.on_pause(nil)
+playables.on_resume(nil)
+```
+
+### Language
+
+`playables.get_language(callback)` returns the language from the player's YouTube settings as a BCP-47 language tag:
+
+```lua
+playables.get_language(function(self, language, error)
+	if error then
+		print("Unable to get language:", error)
+		return
+	end
+
+	print("YouTube language:", language)
+end)
+```
+
+Only one `get_language()` request may be in progress at a time. YouTube recommends using this value instead of another locale source or a language stored in cloud save data.
