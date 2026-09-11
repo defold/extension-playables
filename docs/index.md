@@ -90,7 +90,11 @@ playables.save_data(data, function(self, success, error)
 end)
 ```
 
-The SDK requires a valid, well-formed string no larger than 3 MiB. Only one `save_data()` request may be in progress at a time. The request remains in progress until its callback returns, so the callback cannot start another `save_data()` request.
+The Lua string must contain valid UTF-8 text. The bridge converts it to a well-formed UTF-16 JavaScript string for the SDK, which limits save data to 3 MiB. Invalid UTF-8 is rejected through the callback with `false` and an error message before the SDK is called. Embedded zero bytes are supported.
+
+For binary data such as `sys.serialize()` output, Base64-encode it before saving and decode it after loading, before calling `sys.deserialize()`. The encoded text must fit within the save-data limit.
+
+Only one `save_data()` request may be in progress at a time. The request remains in progress until its callback returns, so the callback cannot start another `save_data()` request.
 
 ## System integration
 

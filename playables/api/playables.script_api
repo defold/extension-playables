@@ -63,12 +63,12 @@
 
   - name: save_data
     type: function
-    desc: Saves a serialized string to YouTube. The string must be valid and no larger than 3 MiB. Only one save request may be in progress at a time. The request remains in progress until its callback returns, so the callback cannot start another save_data() request.
+    desc: Saves valid UTF-8 text to YouTube, with a maximum size of 3 MiB. Invalid UTF-8 returns false and an error through the callback before the SDK is called. Base64-encode binary data such as sys.serialize() output before saving. Only one save request may be in progress at a time. The request remains in progress until its callback returns, so the callback cannot start another save_data() request.
 
     parameters:
     - name: data
       type: string
-      desc: The serialized game data.
+      desc: The serialized game data as valid UTF-8 text. Embedded zero bytes are supported.
     - name: callback
       type: function
 
@@ -81,7 +81,7 @@
           desc: True when the save completed successfully.
         - name: error
           type: [string, nil]
-          desc: The SDK error message on failure, otherwise nil.
+          desc: The UTF-8 decoding or SDK error message on failure, otherwise nil.
 
 #*****************************************************************************************************
 

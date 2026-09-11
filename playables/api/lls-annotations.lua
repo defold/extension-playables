@@ -36,7 +36,8 @@ function playables.game_ready() end
 function playables.load_data(callback) end
 
 ---Saves serialized game data to YouTube.
----The data must be a valid string no larger than 3 MiB. Only one save request may be in progress at a time.
+---The data must be valid UTF-8 text no larger than 3 MiB. Invalid UTF-8 returns false and an error through the callback.
+---Base64-encode binary data such as sys.serialize() output before saving. Only one save request may be in progress at a time.
 ---The request remains in progress until its callback returns, so the callback cannot start another `playables.save_data()` request.
 ---@param data string
 ---@param callback fun(self: userdata, success: boolean, error: string|nil)

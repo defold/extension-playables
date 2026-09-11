@@ -10,8 +10,8 @@ local function on_data_loaded(self, data, error)
 	if error then
 		update_status_text("Unable to load data: %s", error)
 	else
-		self.game_data = sys.deserialize(data)
-		self.game_data.score = math.floor(self.game_data.score or 0)
+		self.game_data = json.decode(data)
+		self.game_data.score = self.game_data.score or 0
 		update_status_text("Loaded data")
 		update_score_text(self)
 	end
@@ -112,8 +112,6 @@ function on_input(self, action_id, action)
 	end
 
 	if action_id == hash("touch") and action.released then
-		self.game_data.score = self.game_data.score + 1
-		update_score_text(self)
 		if button("send_score", action.x, action.y) then
 			playables.send_score(self.game_data.score, on_score_sent)
 		elseif button("request_interstitial_ad", action.x, action.y) then
@@ -123,11 +121,14 @@ function on_input(self, action_id, action)
 			playables.request_rewarded_ad(reward_id, on_rewarded_ad)
 		elseif button("save_data", action.x, action.y) then
 			update_status_text("Saving data")
-			local data = sys.serialize(self.game_data)
+			local data = json.encode(self.game_data)
 			playables.save_data(data, on_data_saved)
 		elseif button("load_data", action.x, action.y) then
 			update_status_text("Loading data")
 			playables.load_data(on_data_loaded)
+		else
+			self.game_data.score = self.game_data.score + 1
+			update_score_text(self)
 		end
 		--playables.open_yt_content(message.id, playables.CONTENT_TYPE_VIDEO, on_content_opened)
 		--playables.open_yt_content(message.id, playables.CONTENT_TYPE_PLAYABLE, on_content_opened)

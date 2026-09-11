@@ -271,7 +271,8 @@ var LibPlayables = {
             // Decode the full byte range, including embedded NULs and a leading BOM.
             // Copy the bytes so decoding also works with shared WebAssembly memory.
             var bytes = HEAPU8.slice(data, data + dataLength);
-            var value = new TextDecoder("utf-8", { ignoreBOM: true }).decode(bytes);
+            // Reject invalid UTF-8 instead of silently replacing bytes in the save data.
+            var value = new TextDecoder("utf-8", { ignoreBOM: true, fatal: true }).decode(bytes);
             Promise.resolve(ytgame.game.saveData(value)).then(Playables._saveDataSucceeded, Playables._saveDataFailed);
         } catch (error) {
             Promise.resolve(error).then(Playables._saveDataFailed);
