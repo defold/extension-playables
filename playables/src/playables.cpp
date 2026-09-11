@@ -7,6 +7,10 @@
 
 #if defined(DM_PLATFORM_HTML5)
 
+static const dmhash_t MASTER_SOUND_GROUP = dmHashString64("master");
+
+static bool g_IsPaused = false;
+
 enum PlayablesCallbackSlot
 {
     CALLBACK_SLOT_LOAD_DATA = 0,
@@ -393,6 +397,8 @@ static int Playables_AudioEnabledChangeCallback(int is_audio_enabled)
     {
         return 0;
     }
+    bool mute_master = !is_audio_enabled || g_IsPaused;
+    dmSound::SetGroupMute(MASTER_SOUND_GROUP, mute_master);
     lua_pushboolean(L, is_audio_enabled);
     Playables_InvokeCallback(L, 2, 0, CALLBACK_SLOT_AUDIO_ENABLED_CHANGE);
     return 1;
@@ -405,6 +411,8 @@ static int Playables_PauseCallback()
     {
         return 0;
     }
+    g_IsPaused = true;
+    dmSound::SetGroupMute(MASTER_SOUND_GROUP, true);
     Playables_InvokeCallback(L, 1, 0, CALLBACK_SLOT_PAUSE);
     return 1;
 }
@@ -416,6 +424,8 @@ static int Playables_ResumeCallback()
     {
         return 0;
     }
+    g_IsPaused = false;
+    dmSound::SetGroupMute(MASTER_SOUND_GROUP, PlayablesJs_IsAudioEnabled());
     Playables_InvokeCallback(L, 1, 0, CALLBACK_SLOT_RESUME);
     return 1;
 }
@@ -639,6 +649,7 @@ static void LuaInit(lua_State* L)
 static dmExtension::Result InitializePlayables(dmExtension::Params* params)
 {
     LuaInit(params->m_L);
+    PlayablesJs_FirstFrameReady();
     return dmExtension::RESULT_OK;
 }
 
