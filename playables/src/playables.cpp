@@ -3,6 +3,7 @@
 #define MODULE_NAME "playables"
 
 #include <dmsdk/sdk.h>
+#include <stdlib.h>
 
 #if defined(DM_PLATFORM_HTML5)
 
@@ -44,6 +45,8 @@ typedef void (*InterstitialAdCallback)();
 typedef void (*RewardedAdCallback)(int reward_earned);
 
 extern "C" {
+    int PlayablesJs_IsInPlayablesEnv();
+    char* PlayablesJs_GetSdkVersion();
     void PlayablesJs_FirstFrameReady();
     void PlayablesJs_GameReady();
     void PlayablesJs_LoadData(LoadDataCallback callback, AsyncErrorCallback error_callback);
@@ -419,6 +422,22 @@ static int Playables_ResumeCallback()
 
 /**** Lua to C++ binding functions ********/
 
+static int Playables_IsInPlayablesEnv(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 1);
+    lua_pushboolean(L, PlayablesJs_IsInPlayablesEnv());
+    return 1;
+}
+
+static int Playables_GetSdkVersion(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 1);
+    char* version = PlayablesJs_GetSdkVersion();
+    lua_pushstring(L, version);
+    free(version);
+    return 1;
+}
+
 static int Playables_FirstFrameReady(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 0);
@@ -581,6 +600,8 @@ static int Playables_LogWarning(lua_State* L)
 
 static const luaL_reg Module_methods[] =
 {
+    {"is_in_playables_env", Playables_IsInPlayablesEnv},
+    {"get_sdk_version", Playables_GetSdkVersion},
     {"first_frame_ready", Playables_FirstFrameReady},
     {"game_ready", Playables_GameReady},
     {"load_data", Playables_LoadData},

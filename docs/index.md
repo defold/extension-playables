@@ -23,6 +23,19 @@ The extension includes the required synchronous SDK import in its HTML5 engine t
 <script src="https://www.youtube.com/game_api/v1"></script>
 ```
 
+## Environment and SDK version
+
+`playables.is_in_playables_env()` returns the SDK's `IN_PLAYABLES_ENV` flag as a boolean. It returns `false` if the SDK is not loaded or the game is running outside the Playables environment.
+
+`playables.get_sdk_version()` returns the loaded SDK's `SDK_VERSION` string, or `nil` if the SDK or its version is unavailable. Use this value for diagnostics during development.
+
+```lua
+local in_playables_env = playables.is_in_playables_env()
+local sdk_version = playables.get_sdk_version()
+```
+
+Both getters are synchronous and take no arguments or callbacks. The SDK can be loaded outside the Playables environment, so `get_sdk_version()` can return a version even when `is_in_playables_env()` returns `false`.
+
 ## Game lifecycle
 
 Call `playables.first_frame_ready()` when the game has begun showing frames. YouTube does not show the game to players until this is reported:

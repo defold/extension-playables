@@ -72,6 +72,8 @@ end
 function init(self)
 	if html5 then
 		print("YouTube Playables extension loaded")
+		print("In Playables environment:", playables.is_in_playables_env())
+		print("YouTube Playables SDK version:", playables.get_sdk_version())
 		on_audio_enabled_change(self, playables.is_audio_enabled())
 		playables.on_audio_enabled_change(on_audio_enabled_change)
 		playables.on_pause(on_pause)

@@ -7,6 +7,9 @@ This [Defold native extension](https://defold.com/manuals/extensions/) exposes t
 The Lua API covers the public functions in `ytgame.game`, `ytgame.system`, `ytgame.engagement`, `ytgame.ads`, and `ytgame.health`:
 
 ```lua
+local in_playables_env = playables.is_in_playables_env()
+local sdk_version = playables.get_sdk_version()
+
 playables.first_frame_ready()
 playables.game_ready()
 playables.load_data(function(self, data, error) end)

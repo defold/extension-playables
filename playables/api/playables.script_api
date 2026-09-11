@@ -6,6 +6,28 @@
 
 #*****************************************************************************************************
 
+  - name: is_in_playables_env
+    type: function
+    desc: Returns whether the SDK reports that the game is running in the Playables environment. Returns false if the SDK is not loaded.
+
+    returns:
+    - name: in_playables_env
+      type: boolean
+      desc: True when the SDK is loaded and IN_PLAYABLES_ENV is true, otherwise false.
+
+#*****************************************************************************************************
+
+  - name: get_sdk_version
+    type: function
+    desc: Returns the loaded YouTube Playables SDK version, or nil if it is unavailable.
+
+    returns:
+    - name: sdk_version
+      type: [string, nil]
+      desc: The value of SDK_VERSION, or nil if the SDK or its version is unavailable.
+
+#*****************************************************************************************************
+
   - name: first_frame_ready
     type: function
     desc: Notifies YouTube that the game has begun showing frames. This must be called before game_ready().

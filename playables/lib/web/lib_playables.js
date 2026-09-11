@@ -234,6 +234,18 @@ var LibPlayables = {
         }
     },
 
+    PlayablesJs_IsInPlayablesEnv: function() {
+        return typeof ytgame !== "undefined" && ytgame && ytgame.IN_PLAYABLES_ENV ? 1 : 0;
+    },
+
+    PlayablesJs_GetSdkVersion: function() {
+        if (typeof ytgame === "undefined" || !ytgame || typeof ytgame.SDK_VERSION !== "string") {
+            return 0;
+        }
+        // The C++ caller copies the string into Lua and frees this allocation.
+        return stringToNewUTF8(ytgame.SDK_VERSION);
+    },
+
     PlayablesJs_FirstFrameReady: function() {
         ytgame.game.firstFrameReady();
     },

@@ -12,6 +12,15 @@ playables.CONTENT_TYPE_PLAYABLE = nil
 ---| `playables.CONTENT_TYPE_VIDEO`
 ---| `playables.CONTENT_TYPE_PLAYABLE`
 
+---Returns whether the SDK reports that the game is running in the Playables environment.
+---Returns false if the SDK is not loaded.
+---@return boolean in_playables_env
+function playables.is_in_playables_env() end
+
+---Returns the loaded YouTube Playables SDK version, or nil if it is unavailable.
+---@return string|nil sdk_version
+function playables.get_sdk_version() end
+
 ---Notifies YouTube that the game has begun showing frames.
 ---This must be called before `playables.game_ready()`.
 function playables.first_frame_ready() end
