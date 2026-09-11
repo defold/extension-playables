@@ -1,0 +1,123 @@
+script: "/example/example.gui_script"
+nodes {
+  position {
+    x: 320.0
+    y: 900.0
+  }
+  type: TYPE_TEMPLATE
+  id: "send_score"
+  inherit_alpha: true
+  template: "/example/button.gui"
+}
+nodes {
+  type: TYPE_BOX
+  id: "send_score/button"
+  parent: "send_score"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_TEXT
+  text: "Send Score"
+  id: "send_score/text"
+  parent: "send_score/button"
+  overridden_fields: 8
+  template_node_child: true
+}
+nodes {
+  position {
+    x: 320.0
+    y: 800.0
+  }
+  type: TYPE_TEMPLATE
+  id: "request_interstitial_ad"
+  inherit_alpha: true
+  template: "/example/button.gui"
+}
+nodes {
+  type: TYPE_BOX
+  id: "request_interstitial_ad/button"
+  parent: "request_interstitial_ad"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_TEXT
+  text: "interstitial"
+  id: "request_interstitial_ad/text"
+  parent: "request_interstitial_ad/button"
+  overridden_fields: 8
+  template_node_child: true
+}
+nodes {
+  position {
+    x: 320.0
+    y: 700.0
+  }
+  type: TYPE_TEMPLATE
+  id: "request_rewarded_ad"
+  inherit_alpha: true
+  template: "/example/button.gui"
+}
+nodes {
+  type: TYPE_BOX
+  id: "request_rewarded_ad/button"
+  parent: "request_rewarded_ad"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_TEXT
+  text: "rewarded"
+  id: "request_rewarded_ad/text"
+  parent: "request_rewarded_ad/button"
+  overridden_fields: 8
+  template_node_child: true
+}
+nodes {
+  position {
+    x: 320.0
+    y: 600.0
+  }
+  type: TYPE_TEMPLATE
+  id: "save_data"
+  inherit_alpha: true
+  template: "/example/button.gui"
+}
+nodes {
+  type: TYPE_BOX
+  id: "save_data/button"
+  parent: "save_data"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_TEXT
+  text: "save data"
+  id: "save_data/text"
+  parent: "save_data/button"
+  overridden_fields: 8
+  template_node_child: true
+}
+nodes {
+  position {
+    x: 320.0
+    y: 500.0
+  }
+  type: TYPE_TEMPLATE
+  id: "load_data"
+  inherit_alpha: true
+  template: "/example/button.gui"
+}
+nodes {
+  type: TYPE_BOX
+  id: "load_data/button"
+  parent: "load_data"
+  template_node_child: true
+}
+nodes {
+  type: TYPE_TEXT
+  text: "load data"
+  id: "load_data/text"
+  parent: "load_data/button"
+  overridden_fields: 8
+  template_node_child: true
+}
+material: "/builtins/materials/gui.material"
+adjust_reference: ADJUST_REFERENCE_PARENT

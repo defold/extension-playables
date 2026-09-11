@@ -5,11 +5,11 @@ main_collection = /example/example.collectionc
 shared_state = 1
 
 [display]
-width = 960
-height = 640
+width = 640
+height = 1136
 
 [project]
-title = Defold YouTube Playables SDK
+title = Playables
 
 [library]
 include_dirs = playables
@@ -18,3 +18,4 @@ include_dirs = playables
 heap_size = 32
 show_fullscreen_button = 0
 show_made_with_defold = 0
+
