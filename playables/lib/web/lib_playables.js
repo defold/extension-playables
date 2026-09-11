@@ -18,6 +18,10 @@ var LibPlayables = {
         _sendScoreErrorCallback: null,
         _openYTContentCallback: null,
         _openYTContentErrorCallback: null,
+        _interstitialAdCallback: null,
+        _interstitialAdErrorCallback: null,
+        _rewardedAdCallback: null,
+        _rewardedAdErrorCallback: null,
 
         _errorMessage: function(error) {
             if (error && typeof error.message === "string") {
@@ -191,6 +195,42 @@ var LibPlayables = {
             if (callback) {
                 Playables._invokeErrorCallback(callback, error);
             }
+        },
+
+        _interstitialAdSucceeded: function() {
+            var callback = Playables._interstitialAdCallback;
+            Playables._interstitialAdCallback = null;
+            Playables._interstitialAdErrorCallback = null;
+            if (callback) {
+                {{{ makeDynCall("v", "callback") }}}();
+            }
+        },
+
+        _interstitialAdFailed: function(error) {
+            var callback = Playables._interstitialAdErrorCallback;
+            Playables._interstitialAdCallback = null;
+            Playables._interstitialAdErrorCallback = null;
+            if (callback) {
+                Playables._invokeErrorCallback(callback, error);
+            }
+        },
+
+        _rewardedAdSucceeded: function(rewardEarned) {
+            var callback = Playables._rewardedAdCallback;
+            Playables._rewardedAdCallback = null;
+            Playables._rewardedAdErrorCallback = null;
+            if (callback) {
+                {{{ makeDynCall("vi", "callback") }}}(rewardEarned ? 1 : 0);
+            }
+        },
+
+        _rewardedAdFailed: function(error) {
+            var callback = Playables._rewardedAdErrorCallback;
+            Playables._rewardedAdCallback = null;
+            Playables._rewardedAdErrorCallback = null;
+            if (callback) {
+                Playables._invokeErrorCallback(callback, error);
+            }
         }
     },
 
@@ -275,6 +315,10 @@ var LibPlayables = {
         Playables._sendScoreErrorCallback = null;
         Playables._openYTContentCallback = null;
         Playables._openYTContentErrorCallback = null;
+        Playables._interstitialAdCallback = null;
+        Playables._interstitialAdErrorCallback = null;
+        Playables._rewardedAdCallback = null;
+        Playables._rewardedAdErrorCallback = null;
         Playables._clearAudioEnabledChange();
         Playables._clearPause();
         Playables._clearResume();
@@ -299,6 +343,28 @@ var LibPlayables = {
             Promise.resolve(ytgame.engagement.openYTContent(content)).then(Playables._openYTContentSucceeded, Playables._openYTContentFailed);
         } catch (error) {
             Promise.resolve(error).then(Playables._openYTContentFailed);
+        }
+    },
+
+    PlayablesJs_RequestInterstitialAd: function(callback, errorCallback) {
+        Playables._interstitialAdCallback = callback;
+        Playables._interstitialAdErrorCallback = errorCallback;
+        try {
+            Promise.resolve(ytgame.ads.requestInterstitialAd()).then(Playables._interstitialAdSucceeded, Playables._interstitialAdFailed);
+        } catch (error) {
+            Promise.resolve(error).then(Playables._interstitialAdFailed);
+        }
+    },
+
+    PlayablesJs_RequestRewardedAd: function(rewardId, rewardIdLength, callback, errorCallback) {
+        Playables._rewardedAdCallback = callback;
+        Playables._rewardedAdErrorCallback = errorCallback;
+        try {
+            var bytes = HEAPU8.slice(rewardId, rewardId + rewardIdLength);
+            var id = new TextDecoder("utf-8", { ignoreBOM: true }).decode(bytes);
+            Promise.resolve(ytgame.ads.requestRewardedAd(id)).then(Playables._rewardedAdSucceeded, Playables._rewardedAdFailed);
+        } catch (error) {
+            Promise.resolve(error).then(Playables._rewardedAdFailed);
         }
     }
 };

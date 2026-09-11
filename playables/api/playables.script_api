@@ -198,6 +198,51 @@
 
 #*****************************************************************************************************
 
+  - name: request_interstitial_ad
+    type: function
+    desc: Requests an interstitial ad. Success does not guarantee that an ad was shown. Do not use this API to grant rewards. Only one interstitial request may be in progress at a time. The request remains in progress until its callback returns, so the callback cannot start another request_interstitial_ad() request. Keep handling YouTube audio, pause, and resume events during ads.
+
+    parameters:
+    - name: callback
+      type: function
+
+      parameters:
+        - name: self
+          type: object
+          desc: The calling script instance.
+        - name: success
+          type: boolean
+          desc: True when the request succeeded. This does not guarantee that an ad was shown.
+        - name: error
+          type: [string, nil]
+          desc: The SDK error message on failure, otherwise nil.
+
+#*****************************************************************************************************
+
+  - name: request_rewarded_ad
+    type: function
+    desc: Requests a rewarded ad. Grant a reward only when reward_earned is true. Only one rewarded request may be in progress at a time. The request remains in progress until its callback returns, so the callback cannot start another request_rewarded_ad() request. Keep handling YouTube audio, pause, and resume events during ads.
+
+    parameters:
+    - name: reward_id
+      type: string
+      desc: A stable ID unique to the reward type. Reuse it for each offer of that reward and do not include user data.
+    - name: callback
+      type: function
+
+      parameters:
+        - name: self
+          type: object
+          desc: The calling script instance.
+        - name: reward_earned
+          type: [boolean, nil]
+          desc: True if a reward was earned, false if no reward was earned, or nil if the request failed.
+        - name: error
+          type: [string, nil]
+          desc: The SDK error message on failure, otherwise nil.
+
+#*****************************************************************************************************
+
   - name: CONTENT_TYPE_VIDEO
     type: number
     desc: Opens a YouTube video.

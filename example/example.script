@@ -50,6 +50,25 @@ local function on_content_opened(self, success, error)
 	end
 end
 
+local function on_interstitial_ad(self, success, error)
+	if success then
+		print("Interstitial ad request succeeded")
+	else
+		print("Unable to request interstitial ad:", error)
+	end
+end
+
+local function on_rewarded_ad(self, reward_earned, error)
+	if error then
+		print("Unable to request rewarded ad:", error)
+	elseif reward_earned then
+		print("Reward earned")
+		-- Grant the reward here.
+	else
+		print("No reward earned")
+	end
+end
+
 function init(self)
 	if html5 then
 		print("YouTube Playables extension loaded")
@@ -91,5 +110,9 @@ function on_message(self, message_id, message)
 		playables.open_yt_content(message.id, playables.CONTENT_TYPE_VIDEO, on_content_opened)
 	elseif message_id == hash("open_playable") then
 		playables.open_yt_content(message.id, playables.CONTENT_TYPE_PLAYABLE, on_content_opened)
+	elseif message_id == hash("request_interstitial_ad") then
+		playables.request_interstitial_ad(on_interstitial_ad)
+	elseif message_id == hash("request_rewarded_ad") then
+		playables.request_rewarded_ad(message.reward_id, on_rewarded_ad)
 	end
 end

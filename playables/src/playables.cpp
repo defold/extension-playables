@@ -16,6 +16,8 @@ enum PlayablesCallbackSlot
     CALLBACK_SLOT_RESUME,
     CALLBACK_SLOT_SEND_SCORE,
     CALLBACK_SLOT_OPEN_YT_CONTENT,
+    CALLBACK_SLOT_REQUEST_INTERSTITIAL_AD,
+    CALLBACK_SLOT_REQUEST_REWARDED_AD,
     CALLBACK_SLOT_COUNT
 };
 
@@ -38,6 +40,8 @@ typedef void (*GetLanguageCallback)(const char* language, int language_length);
 typedef int (*AudioEnabledChangeCallback)(int is_audio_enabled);
 typedef int (*SystemEventCallback)();
 typedef void (*EngagementSuccessCallback)();
+typedef void (*InterstitialAdCallback)();
+typedef void (*RewardedAdCallback)(int reward_earned);
 
 extern "C" {
     void PlayablesJs_FirstFrameReady();
@@ -52,6 +56,8 @@ extern "C" {
     void PlayablesJs_ClearCallbacks();
     void PlayablesJs_SendScore(double score, EngagementSuccessCallback callback, AsyncErrorCallback error_callback);
     void PlayablesJs_OpenYTContent(const char* content_id, int content_id_length, int content_type, EngagementSuccessCallback callback, AsyncErrorCallback error_callback);
+    void PlayablesJs_RequestInterstitialAd(InterstitialAdCallback callback, AsyncErrorCallback error_callback);
+    void PlayablesJs_RequestRewardedAd(const char* reward_id, int reward_id_length, RewardedAdCallback callback, AsyncErrorCallback error_callback);
 }
 
 static dmScript::LuaCallbackInfo* playables_Callbacks[CALLBACK_SLOT_COUNT] = {0x0};
@@ -77,6 +83,10 @@ static const char* Playables_GetCallbackName(PlayablesCallbackSlot slot)
             return "send_score";
         case CALLBACK_SLOT_OPEN_YT_CONTENT:
             return "open_yt_content";
+        case CALLBACK_SLOT_REQUEST_INTERSTITIAL_AD:
+            return "request_interstitial_ad";
+        case CALLBACK_SLOT_REQUEST_REWARDED_AD:
+            return "request_rewarded_ad";
         case CALLBACK_SLOT_COUNT:
         default:
             return "unknown";
@@ -325,6 +335,50 @@ static void Playables_OpenYTContentErrorCallback(const char* error, int error_le
     }
 }
 
+static void Playables_InterstitialAdCallback()
+{
+    lua_State* L = Playables_SetupCallback(CALLBACK_SLOT_REQUEST_INTERSTITIAL_AD);
+    if (L)
+    {
+        lua_pushboolean(L, true);
+        lua_pushnil(L);
+        Playables_InvokeCallback(L, 3, 0, CALLBACK_SLOT_REQUEST_INTERSTITIAL_AD);
+    }
+}
+
+static void Playables_InterstitialAdErrorCallback(const char* error, int error_length)
+{
+    lua_State* L = Playables_SetupCallback(CALLBACK_SLOT_REQUEST_INTERSTITIAL_AD);
+    if (L)
+    {
+        lua_pushboolean(L, false);
+        lua_pushlstring(L, error, error_length);
+        Playables_InvokeCallback(L, 3, 0, CALLBACK_SLOT_REQUEST_INTERSTITIAL_AD);
+    }
+}
+
+static void Playables_RewardedAdCallback(int reward_earned)
+{
+    lua_State* L = Playables_SetupCallback(CALLBACK_SLOT_REQUEST_REWARDED_AD);
+    if (L)
+    {
+        lua_pushboolean(L, reward_earned);
+        lua_pushnil(L);
+        Playables_InvokeCallback(L, 3, 0, CALLBACK_SLOT_REQUEST_REWARDED_AD);
+    }
+}
+
+static void Playables_RewardedAdErrorCallback(const char* error, int error_length)
+{
+    lua_State* L = Playables_SetupCallback(CALLBACK_SLOT_REQUEST_REWARDED_AD);
+    if (L)
+    {
+        lua_pushnil(L);
+        lua_pushlstring(L, error, error_length);
+        Playables_InvokeCallback(L, 3, 0, CALLBACK_SLOT_REQUEST_REWARDED_AD);
+    }
+}
+
 /**** Repeated callback functions ********/
 
 static int Playables_AudioEnabledChangeCallback(int is_audio_enabled)
@@ -487,6 +541,28 @@ static int Playables_OpenYTContent(lua_State* L)
     return 0;
 }
 
+static int Playables_RequestInterstitialAd(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    if (Playables_CreateCallback(L, 1, CALLBACK_SLOT_REQUEST_INTERSTITIAL_AD))
+    {
+        PlayablesJs_RequestInterstitialAd((InterstitialAdCallback)Playables_InterstitialAdCallback, (AsyncErrorCallback)Playables_InterstitialAdErrorCallback);
+    }
+    return 0;
+}
+
+static int Playables_RequestRewardedAd(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    size_t reward_id_length = 0;
+    const char* reward_id = luaL_checklstring(L, 1, &reward_id_length);
+    if (Playables_CreateCallback(L, 2, CALLBACK_SLOT_REQUEST_REWARDED_AD))
+    {
+        PlayablesJs_RequestRewardedAd(reward_id, (int)reward_id_length, (RewardedAdCallback)Playables_RewardedAdCallback, (AsyncErrorCallback)Playables_RewardedAdErrorCallback);
+    }
+    return 0;
+}
+
 static const luaL_reg Module_methods[] =
 {
     {"first_frame_ready", Playables_FirstFrameReady},
@@ -500,6 +576,8 @@ static const luaL_reg Module_methods[] =
     {"get_language", Playables_GetLanguage},
     {"send_score", Playables_SendScore},
     {"open_yt_content", Playables_OpenYTContent},
+    {"request_interstitial_ad", Playables_RequestInterstitialAd},
+    {"request_rewarded_ad", Playables_RequestRewardedAd},
     {0, 0}
 };
 

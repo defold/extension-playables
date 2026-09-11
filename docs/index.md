@@ -187,3 +187,41 @@ end)
 ```
 
 A successful callback means the request succeeded, but does not guarantee that the content opened. Only one open-content request may be in progress at a time. The request remains in progress until its callback returns, so the callback cannot start another `open_yt_content()` request.
+
+## Ads
+
+Before using the ads APIs, enable ads in the YouTube Playables Developer Portal as described in the [monetization requirements](https://developers.google.com/youtube/gaming/playables/certification/requirements_monetization). Continue to handle YouTube audio-setting changes, pause, and resume events during ads. An ad callback reports the request result; resume gameplay in response to `on_resume`.
+
+### Interstitial ads
+
+`playables.request_interstitial_ad(callback)` requests an interstitial ad. The callback receives `true, nil` on success or `false, error` on failure:
+
+```lua
+playables.request_interstitial_ad(function(self, success, error)
+	if not success then
+		print("Unable to request interstitial ad:", error)
+	end
+end)
+```
+
+A successful request does not guarantee that an ad was shown. Do not use this API to grant rewards. Only one interstitial request may be in progress at a time, including while its callback executes.
+
+### Rewarded ads
+
+`playables.request_rewarded_ad(reward_id, callback)` requests an ad for a particular reward type. Use a stable ID for each reward type, reuse it whenever that reward is offered, and do not include user data in the ID.
+
+```lua
+playables.request_rewarded_ad("extra_life", function(self, reward_earned, error)
+	if error then
+		print("Unable to request rewarded ad:", error)
+	elseif reward_earned then
+		-- Grant the extra life here.
+	else
+		-- No reward was earned.
+	end
+end)
+```
+
+The callback receives `true, nil` when a reward was earned, `false, nil` when no reward was earned, or `nil, error` when the request failed. Grant rewards only when `reward_earned` is `true`.
+
+Only one rewarded request may be in progress at a time, including while its callback executes. The interstitial and rewarded request limits are tracked separately.

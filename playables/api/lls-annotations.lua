@@ -77,4 +77,18 @@ function playables.send_score(score, callback) end
 ---@overload fun(content_id: string, callback: fun(self: userdata, success: boolean, error: string|nil))
 function playables.open_yt_content(content_id, content_type, callback) end
 
+---Requests an interstitial ad. Success does not guarantee that an ad was shown.
+---Do not use this API to grant rewards. Only one interstitial request may be in progress at a time.
+---The request remains in progress until its callback returns, so the callback cannot start another request.
+---@param callback fun(self: userdata, success: boolean, error: string|nil)
+function playables.request_interstitial_ad(callback) end
+
+---Requests a rewarded ad. Grant a reward only when reward_earned is true.
+---A successful request returns true or false; a failed request returns nil and an error message.
+---Only one rewarded request may be in progress at a time. The request remains in progress until its callback returns,
+---so the callback cannot start another request. Keep handling YouTube audio, pause, and resume events during ads.
+---@param reward_id string A stable ID unique to the reward type. Reuse it for each offer of that reward; do not include user data.
+---@param callback fun(self: userdata, reward_earned: boolean|nil, error: string|nil)
+function playables.request_rewarded_ad(reward_id, callback) end
+
 return playables
