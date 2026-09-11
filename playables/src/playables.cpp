@@ -448,13 +448,6 @@ static int Playables_GetSdkVersion(lua_State* L)
     return 1;
 }
 
-static int Playables_FirstFrameReady(lua_State* L)
-{
-    DM_LUA_STACK_CHECK(L, 0);
-    PlayablesJs_FirstFrameReady();
-    return 0;
-}
-
 static int Playables_GameReady(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 0);
@@ -612,7 +605,6 @@ static const luaL_reg Module_methods[] =
 {
     {"is_in_playables_env", Playables_IsInPlayablesEnv},
     {"get_sdk_version", Playables_GetSdkVersion},
-    {"first_frame_ready", Playables_FirstFrameReady},
     {"game_ready", Playables_GameReady},
     {"load_data", Playables_LoadData},
     {"save_data", Playables_SaveData},

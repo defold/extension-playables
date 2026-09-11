@@ -10,7 +10,6 @@ The Lua API covers the public functions in `ytgame.game`, `ytgame.system`, `ytga
 local in_playables_env = playables.is_in_playables_env()
 local sdk_version = playables.get_sdk_version()
 
-playables.first_frame_ready()
 playables.game_ready()
 playables.load_data(function(self, data, error) end)
 playables.save_data(data, function(self, success, error) end)
@@ -37,6 +36,6 @@ Add the extension to a Defold project using a release archive URL:
 https://github.com/defold/extension-playables/archive/refs/tags/<version>.zip
 ```
 
-The extension's HTML5 engine template loads the YouTube Playables SDK before the game code. YouTube requires `first_frame_ready()` before `game_ready()`, and `game_ready()` must only be called after the loading screen is removed and the game accepts player input.
+The extension's HTML5 engine template loads the YouTube Playables SDK before the game code. The extension automatically calls `ytgame.game.firstFrameReady()` during initialization. Call `playables.game_ready()` only after the loading screen is removed and the game accepts player input.
 
 See the [extension documentation](docs/index.md) for more information.

@@ -28,15 +28,9 @@
 
 #*****************************************************************************************************
 
-  - name: first_frame_ready
-    type: function
-    desc: Notifies YouTube that the game has begun showing frames. This must be called before game_ready().
-
-#*****************************************************************************************************
-
   - name: game_ready
     type: function
-    desc: Notifies YouTube that the loading screen is gone and the game is ready for players to interact with. YouTube requires firstFrameReady() to be called before this function.
+    desc: Notifies YouTube that the loading screen is gone and the game is ready for players to interact with. The extension automatically calls firstFrameReady() during initialization.
 
 #*****************************************************************************************************
 

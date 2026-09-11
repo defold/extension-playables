@@ -21,12 +21,9 @@ function playables.is_in_playables_env() end
 ---@return string|nil sdk_version
 function playables.get_sdk_version() end
 
----Notifies YouTube that the game has begun showing frames.
----This must be called before `playables.game_ready()`.
-function playables.first_frame_ready() end
-
 ---Notifies YouTube that the game is ready for players to interact with.
 ---Call this only after the loading screen is gone and the game accepts player input.
+---The extension automatically calls `firstFrameReady()` during initialization.
 function playables.game_ready() end
 
 ---Loads serialized game data from YouTube.
