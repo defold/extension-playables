@@ -425,7 +425,7 @@ static int Playables_ResumeCallback()
         return 0;
     }
     g_IsPaused = false;
-    dmSound::SetGroupMute(MASTER_SOUND_GROUP, PlayablesJs_IsAudioEnabled());
+    dmSound::SetGroupMute(MASTER_SOUND_GROUP, !PlayablesJs_IsAudioEnabled());
     Playables_InvokeCallback(L, 1, 0, CALLBACK_SLOT_RESUME);
     return 1;
 }

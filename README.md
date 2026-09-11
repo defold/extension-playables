@@ -38,4 +38,6 @@ https://github.com/defold/extension-playables/archive/refs/tags/<version>.zip
 
 The extension's HTML5 engine template loads the YouTube Playables SDK before the game code. The extension automatically calls `ytgame.game.firstFrameReady()` during initialization. Call `playables.game_ready()` only after the loading screen is removed and the game accepts player input.
 
+With the audio-change, pause, and resume callbacks registered, the extension automatically mutes the master sound group when audio is disabled or the game is paused, and unmutes it when the game resumes if audio is enabled.
+
 See the [extension documentation](docs/index.md) for more information.

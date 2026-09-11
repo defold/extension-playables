@@ -92,7 +92,7 @@
 
   - name: on_audio_enabled_change
     type: function
-    desc: Registers a callback for YouTube audio-setting changes. A new callback replaces the previous one. Pass nil to unregister it. This function cannot be called from its own callback.
+    desc: Registers a callback for YouTube audio-setting changes. Before the callback runs, the extension automatically mutes the master sound group when audio is disabled, or unmutes it when audio is enabled and the game is not paused. A new callback replaces the previous one. Pass nil to unregister it. This function cannot be called from its own callback.
 
     parameters:
     - name: callback
@@ -111,7 +111,7 @@
 
   - name: on_pause
     type: function
-    desc: Registers a callback for YouTube pause events. A new callback replaces the previous one. Pass nil to unregister it. This function cannot be called from its own callback. A paused game is not guaranteed to resume.
+    desc: Registers a callback for YouTube pause events. The extension automatically mutes the master sound group before the callback runs. A new callback replaces the previous one. Pass nil to unregister it. This function cannot be called from its own callback. A paused game is not guaranteed to resume.
 
     parameters:
     - name: callback
@@ -127,7 +127,7 @@
 
   - name: on_resume
     type: function
-    desc: Registers a callback for YouTube resume events. A new callback replaces the previous one. Pass nil to unregister it. This function cannot be called from its own callback.
+    desc: Registers a callback for YouTube resume events. Before the callback runs, the extension automatically unmutes the master sound group if YouTube audio is enabled, or keeps it muted if audio is disabled. A new callback replaces the previous one. Pass nil to unregister it. This function cannot be called from its own callback.
 
     parameters:
     - name: callback

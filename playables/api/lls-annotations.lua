@@ -45,18 +45,23 @@ function playables.save_data(data, callback) end
 function playables.is_audio_enabled() end
 
 ---Registers a callback for YouTube audio-setting changes.
+---Before the callback runs, the extension automatically mutes the master sound group when audio is disabled,
+---or unmutes it when audio is enabled and the game is not paused.
 ---A new callback replaces the previous one. Pass `nil` to unregister it.
 ---This function cannot be called from its own callback.
 ---@param callback (fun(self: userdata, is_audio_enabled: boolean))|nil
 function playables.on_audio_enabled_change(callback) end
 
 ---Registers a callback for YouTube pause events.
+---The extension automatically mutes the master sound group before the callback runs.
 ---A new callback replaces the previous one. Pass `nil` to unregister it.
 ---This function cannot be called from its own callback.
 ---@param callback (fun(self: userdata))|nil
 function playables.on_pause(callback) end
 
 ---Registers a callback for YouTube resume events.
+---Before the callback runs, the extension automatically unmutes the master sound group if YouTube audio is enabled,
+---or keeps it muted if audio is disabled.
 ---A new callback replaces the previous one. Pass `nil` to unregister it.
 ---This function cannot be called from its own callback.
 ---@param callback (fun(self: userdata))|nil
