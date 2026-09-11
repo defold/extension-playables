@@ -225,3 +225,16 @@ end)
 The callback receives `true, nil` when a reward was earned, `false, nil` when no reward was earned, or `nil, error` when the request failed. Grant rewards only when `reward_earned` is `true`.
 
 Only one rewarded request may be in progress at a time, including while its callback executes. The interstitial and rewarded request limits are tracked separately.
+
+## Health
+
+Use `playables.log_error()` or `playables.log_warning()` when your game detects an error or warning that should be reported to YouTube:
+
+```lua
+playables.log_error()
+playables.log_warning()
+```
+
+These call `ytgame.health.logError()` and `ytgame.health.logWarning()`, respectively. Both functions take no arguments and return no value. They report an occurrence without a message or callback; use your game's own logging for diagnostic details.
+
+The SDK reports these events on a best-effort basis and applies rate limits, so delivery is not guaranteed.

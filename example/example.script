@@ -114,5 +114,9 @@ function on_message(self, message_id, message)
 		playables.request_interstitial_ad(on_interstitial_ad)
 	elseif message_id == hash("request_rewarded_ad") then
 		playables.request_rewarded_ad(message.reward_id, on_rewarded_ad)
+	elseif message_id == hash("log_error") then
+		playables.log_error()
+	elseif message_id == hash("log_warning") then
+		playables.log_warning()
 	end
 end

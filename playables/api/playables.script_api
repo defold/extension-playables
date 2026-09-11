@@ -243,6 +243,18 @@
 
 #*****************************************************************************************************
 
+  - name: log_error
+    type: function
+    desc: Reports an error occurrence to YouTube. Takes no arguments and returns no value. Reporting is best-effort and rate-limited, so delivery is not guaranteed.
+
+#*****************************************************************************************************
+
+  - name: log_warning
+    type: function
+    desc: Reports a warning occurrence to YouTube. Takes no arguments and returns no value. Reporting is best-effort and rate-limited, so delivery is not guaranteed.
+
+#*****************************************************************************************************
+
   - name: CONTENT_TYPE_VIDEO
     type: number
     desc: Opens a YouTube video.

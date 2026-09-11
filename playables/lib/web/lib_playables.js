@@ -366,6 +366,14 @@ var LibPlayables = {
         } catch (error) {
             Promise.resolve(error).then(Playables._rewardedAdFailed);
         }
+    },
+
+    PlayablesJs_LogError: function() {
+        ytgame.health.logError();
+    },
+
+    PlayablesJs_LogWarning: function() {
+        ytgame.health.logWarning();
     }
 };
 

@@ -4,7 +4,7 @@
 
 This [Defold native extension](https://defold.com/manuals/extensions/) exposes the [YouTube Playables SDK](https://developers.google.com/youtube/gaming/playables/reference/sdk) to Lua.
 
-The Lua API covers the public functions in `ytgame.game`, `ytgame.system`, `ytgame.engagement`, and `ytgame.ads`:
+The Lua API covers the public functions in `ytgame.game`, `ytgame.system`, `ytgame.engagement`, `ytgame.ads`, and `ytgame.health`:
 
 ```lua
 playables.first_frame_ready()
@@ -23,6 +23,9 @@ playables.open_yt_content(video_id, playables.CONTENT_TYPE_VIDEO, function(self,
 
 playables.request_interstitial_ad(function(self, success, error) end)
 playables.request_rewarded_ad("extra_life", function(self, reward_earned, error) end)
+
+playables.log_error()
+playables.log_warning()
 ```
 
 Add the extension to a Defold project using a release archive URL:

@@ -91,4 +91,12 @@ function playables.request_interstitial_ad(callback) end
 ---@param callback fun(self: userdata, reward_earned: boolean|nil, error: string|nil)
 function playables.request_rewarded_ad(reward_id, callback) end
 
+---Reports an error occurrence to YouTube. Takes no arguments and returns no value.
+---Reporting is best-effort and rate-limited, so delivery is not guaranteed.
+function playables.log_error() end
+
+---Reports a warning occurrence to YouTube. Takes no arguments and returns no value.
+---Reporting is best-effort and rate-limited, so delivery is not guaranteed.
+function playables.log_warning() end
+
 return playables

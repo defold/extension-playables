@@ -58,6 +58,8 @@ extern "C" {
     void PlayablesJs_OpenYTContent(const char* content_id, int content_id_length, int content_type, EngagementSuccessCallback callback, AsyncErrorCallback error_callback);
     void PlayablesJs_RequestInterstitialAd(InterstitialAdCallback callback, AsyncErrorCallback error_callback);
     void PlayablesJs_RequestRewardedAd(const char* reward_id, int reward_id_length, RewardedAdCallback callback, AsyncErrorCallback error_callback);
+    void PlayablesJs_LogError();
+    void PlayablesJs_LogWarning();
 }
 
 static dmScript::LuaCallbackInfo* playables_Callbacks[CALLBACK_SLOT_COUNT] = {0x0};
@@ -563,6 +565,20 @@ static int Playables_RequestRewardedAd(lua_State* L)
     return 0;
 }
 
+static int Playables_LogError(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    PlayablesJs_LogError();
+    return 0;
+}
+
+static int Playables_LogWarning(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    PlayablesJs_LogWarning();
+    return 0;
+}
+
 static const luaL_reg Module_methods[] =
 {
     {"first_frame_ready", Playables_FirstFrameReady},
@@ -578,6 +594,8 @@ static const luaL_reg Module_methods[] =
     {"open_yt_content", Playables_OpenYTContent},
     {"request_interstitial_ad", Playables_RequestInterstitialAd},
     {"request_rewarded_ad", Playables_RequestRewardedAd},
+    {"log_error", Playables_LogError},
+    {"log_warning", Playables_LogWarning},
     {0, 0}
 };
 
