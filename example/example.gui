@@ -1,4 +1,8 @@
 script: "/example/example.gui_script"
+fonts {
+  name: "default"
+  font: "/builtins/fonts/default.font"
+}
 nodes {
   position {
     x: 320.0
@@ -17,7 +21,7 @@ nodes {
 }
 nodes {
   type: TYPE_TEXT
-  text: "Send Score"
+  text: "send Score"
   id: "send_score/text"
   parent: "send_score/button"
   overridden_fields: 8
@@ -118,6 +122,59 @@ nodes {
   parent: "load_data/button"
   overridden_fields: 8
   template_node_child: true
+}
+nodes {
+  position {
+    x: 320.0
+    y: 100.0
+  }
+  scale {
+    x: 5.0
+    y: 5.0
+  }
+  size {
+    x: 50.0
+    y: 20.0
+  }
+  type: TYPE_TEXT
+  text: "0"
+  font: "default"
+  id: "score"
+  pivot: PIVOT_S
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 320.0
+    y: 1136.0
+  }
+  scale {
+    x: 3.0
+    y: 3.0
+  }
+  size {
+    x: 150.0
+    y: 60.0
+  }
+  type: TYPE_TEXT
+  font: "default"
+  id: "status"
+  pivot: PIVOT_N
+  inherit_alpha: true
+}
+nodes {
+  position {
+    x: 640.0
+  }
+  size {
+    x: 300.0
+    y: 60.0
+  }
+  type: TYPE_TEXT
+  font: "default"
+  id: "version"
+  pivot: PIVOT_SE
+  inherit_alpha: true
 }
 material: "/builtins/materials/gui.material"
 adjust_reference: ADJUST_REFERENCE_PARENT
